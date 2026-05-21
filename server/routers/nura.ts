@@ -1,23 +1,14 @@
 import { z } from "zod";
 import { publicProcedure, router } from "../_core/trpc";
-import { generateObject } from "ai";
+import { generateText } from "ai";
 import { groq } from "@ai-sdk/groq";
 
-const NURA_SYSTEM_PROMPT = `You are Nura, a spiritual companion grounded in Ethiopian Orthodox theology and centered on Jesus Christ.
+// Ensure the API key is present at runtime
+if (!process.env.GROQ_API_KEY) {
+  console.warn("WARNING: GROQ_API_KEY is missing from environment.");
+}
 
-FOUNDATION: Every response lifts up Jesus Christ as the foundation and authority. Every piece of counsel points back to Jesus Christ as THE solution.
-
-THEOLOGY: You are grounded in Ethiopian Orthodox theology including 1 Enoch, Jubilees, and the seven archangels (Michael, Gabriel, Raphael, Uriel, Raguel, Remiel, Phanuel).
-
-TONE: You are motherly but not saccharine. You are firm but never harsh. You listen deeply, speak truth, and always point toward Jesus.
-
-SCRIPTURE: When you counsel, you use Scripture. Not as decoration—as proof. Support every point with God's Word.
-
-CRISIS PROTOCOL: If you detect language indicating immediate danger (suicidal ideation, overdose risk, acute self-harm), immediately provide the 988 Suicide & Crisis Lifeline number and encourage them to call right now.
-
-PRIVACY: You do not store conversation content. You do not track users. You are a spiritual companion grounded in Scripture.
-
-DISCLAIMER: You are not a replacement for professional mental health care or emergency services.`;
+const NURA_BASE_SYSTEM_PROMPT = `You are Nura, an unvarnished, street-smart theological guide for Misfit Ministries. You treat this space like a hospital for the broken. Speak directly, with raw empathy and ancient Orthodox depth. Never mimic generic AI fluff. You are grounded in Ethiopian Orthodox theology including 1 Enoch, Jubilees, and the seven archangels. Every response lifts up Jesus Christ as the foundation. Every piece of counsel points back to Jesus Christ as THE solution. Use Scripture as proof, not decoration. If you detect immediate danger (suicidal ideation, overdose risk, acute self-harm), immediately provide the 988 Suicide & Crisis Lifeline number.`;
 
 const CRISIS_KEYWORDS = [
   "suicide",
@@ -45,44 +36,68 @@ export const nuraRouter = router({
       z.object({
         message: z.string(),
         sessionId: z.string(),
+        userLocation: z.string().optional(),
       })
     )
     .mutation(async ({ input }) => {
-      const isCrisis = detectCrisis(input.message);
-
       try {
-        const response = await generateObject({
-          model: groq("llama-3.3-70b-versatile"),
-          system: NURA_SYSTEM_PROMPT,
-          prompt: input.message,
-          schema: z.object({
-            message: z.string(),
-          }),
-        });
+        const { message, userLocation } = input;
 
-        let finalMessage = response.object.message;
-
-        if (isCrisis) {
-          finalMessage = `I hear you, and I want you to know that Jesus sees your pain. You are not alone.\n\n**Please call or text 988 immediately.** Suicide & Crisis Lifeline is available 24/7 and is completely free and confidential.\n\n${finalMessage}\n\nJesus loves you and has a purpose for your life.`;
-        }
-
-        return {
-          message: finalMessage,
-          isCrisis,
-        };
-      } catch (error) {
-        console.error("[Nura] Chat error:", error);
-        if (isCrisis) {
+        if (!message) {
           return {
-            message:
-              "I hear you. Please call or text 988 immediately. Suicide & Crisis Lifeline is available 24/7. Jesus loves you.",
-            isCrisis: true,
+            message: "Please share what's on your heart.",
+            isCrisis: false,
           };
         }
+
+        let brockResourceContext = "";
+
+        // 1. Detect if the user is asking for nearby physical resources, harm reduction, or help
+        const needsLocalHelp = /near me|closest|hospital|detox|shelter|clinic|find help/i.test(message);
+
+        if (needsLocalHelp) {
+          const locationString = userLocation ? `Coordinates/City: ${userLocation}` : "Unknown location (ask user for details)";
+
+          try {
+            // 2. Call Brock's Groq AI instance to rapidly process or pull local resource matches
+            const groqResponse = await generateText({
+              model: groq("llama-3.3-70b-versatile"),
+              system: `You are an emergency crisis router database utility. Based on the user's location, output a strict Markdown list of the 2-3 closest harm-reduction centers, hospitals, or crisis detox locations with addresses and phone numbers. Keep it completely concise. Location context: ${locationString}`,
+              prompt: `Find the absolute nearest emergency crisis and harm reduction resources for: "${message}"`,
+            });
+
+            if (groqResponse.text) {
+              brockResourceContext = `\n\n[LOCAL CRISIS RESOURCES FOUND]:\n${groqResponse.text}`;
+            }
+          } catch (groqError) {
+            console.error("Brock's Groq API call failed, continuing baseline fallback:", groqError);
+            // Fail gracefully so the chat system doesn't crash if the external API hits a rate-limit
+          }
+        }
+
+        // 3. Combine baseline prompt with Brock's dynamic resource payload if it was triggered
+        const finalSystemPrompt = `${NURA_BASE_SYSTEM_PROMPT}${brockResourceContext}`;
+
+        // 4. Send the final compiled package to Nura's LLM backend
+        const nuraChatResponse = await generateText({
+          model: groq("llama-3.3-70b-versatile"),
+          system: finalSystemPrompt,
+          prompt: message,
+        });
+
+        const isCrisis = detectCrisis(message);
+
+        // 5. Return the completed message cleanly back to the React UI frontend
         return {
-          message:
-            "I'm having trouble responding right now. Please know that Jesus sees you and loves you. If you're in crisis, please call 988.",
+          message: nuraChatResponse.text,
+          resourcesInjected: needsLocalHelp,
           isCrisis,
+        };
+      } catch (error: any) {
+        console.error("Critical error in Nura chat route processing:", error);
+        return {
+          message: "I'm having trouble responding right now. Please know that Jesus sees you and loves you. If you're in crisis, please call 988.",
+          isCrisis: false,
         };
       }
     }),

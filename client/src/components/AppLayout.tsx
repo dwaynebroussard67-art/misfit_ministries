@@ -11,28 +11,16 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/">
-            <a className="text-2xl font-serif font-bold text-foreground hover:text-accent transition-colors">
-              Misfit Ministries
-            </a>
+          <Link href="/" className="text-2xl font-serif font-bold text-foreground hover:text-accent transition-colors">
+            Misfit Ministries
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
-            <Link href="/prayer">
-              <a className="text-sm font-medium hover:text-accent transition-colors">Prayer</a>
-            </Link>
-            <Link href="/shine">
-              <a className="text-sm font-medium hover:text-accent transition-colors">Shine</a>
-            </Link>
-            <Link href="/wreckage">
-              <a className="text-sm font-medium hover:text-accent transition-colors">The Wreckage</a>
-            </Link>
-            <Link href="/armory">
-              <a className="text-sm font-medium hover:text-accent transition-colors">The Armory</a>
-            </Link>
-            <Link href="/about">
-              <a className="text-sm font-medium hover:text-accent transition-colors">About</a>
-            </Link>
+            <Link href="/prayer" className="text-sm font-medium hover:text-accent transition-colors">Prayer</Link>
+            <Link href="/shine" className="text-sm font-medium hover:text-accent transition-colors">Shine</Link>
+            <Link href="/wreckage" className="text-sm font-medium hover:text-accent transition-colors">The Wreckage</Link>
+            <Link href="/armory" className="text-sm font-medium hover:text-accent transition-colors">The Armory</Link>
+            <Link href="/about" className="text-sm font-medium hover:text-accent transition-colors">About</Link>
           </div>
 
           <a
