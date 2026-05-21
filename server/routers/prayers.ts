@@ -63,4 +63,15 @@ export const prayersRouter = router({
 
       return { success: true };
     }),
+
+  delete: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      await db.delete(prayers).where(eq(prayers.id, input.id));
+
+      return { success: true };
+    }),
 });

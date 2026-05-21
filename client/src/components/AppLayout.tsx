@@ -23,6 +23,10 @@ export function AppLayout({ children }: AppLayoutProps) {
             <Link href="/about" className="text-sm font-medium hover:text-accent transition-colors">About</Link>
           </div>
 
+          <Link href="/nura" className="hidden md:inline-flex items-center px-4 py-2 bg-accent text-accent-foreground rounded-lg font-semibold hover:opacity-90 transition-opacity text-sm">
+            Talk to Nura
+          </Link>
+
           <a
             href="tel:988"
             className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg font-semibold hover:opacity-90 transition-opacity text-sm md:text-base"
