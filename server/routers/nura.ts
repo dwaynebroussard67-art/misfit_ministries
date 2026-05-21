@@ -2,6 +2,10 @@ import { z } from "zod";
 import { publicProcedure, router } from "../_core/trpc";
 import { generateText } from "ai";
 import { groq } from "@ai-sdk/groq";
+import { getDb } from "../db";
+import { nuraConversations } from "../../drizzle/schema";
+import { eq } from "drizzle-orm";
+import { nanoid } from "nanoid";
 
 // Ensure the API key is present at runtime
 if (!process.env.GROQ_API_KEY) {
@@ -87,11 +91,45 @@ export const nuraRouter = router({
 
         const isCrisis = detectCrisis(message);
 
-        // 5. Return the completed message cleanly back to the React UI frontend
+        // 5. Persist conversation metadata (not content, for privacy)
+        const db = await getDb();
+        if (db && input.sessionId) {
+          try {
+            const existingSession = await db
+              .select()
+              .from(nuraConversations)
+              .where(eq(nuraConversations.sessionId, input.sessionId))
+              .limit(1);
+
+            if (existingSession.length > 0) {
+              await db
+                .update(nuraConversations)
+                .set({
+                  messageCount: (existingSession[0].messageCount || 0) + 1,
+                  crisisFlag: isCrisis || existingSession[0].crisisFlag,
+                  crisisFlaggedAt: isCrisis && !existingSession[0].crisisFlag ? new Date() : existingSession[0].crisisFlaggedAt,
+                  lastMessage: new Date(),
+                })
+                .where(eq(nuraConversations.sessionId, input.sessionId));
+            } else {
+              await db.insert(nuraConversations).values({
+                sessionId: input.sessionId,
+                messageCount: 1,
+                crisisFlag: isCrisis,
+                crisisFlaggedAt: isCrisis ? new Date() : null,
+              });
+            }
+          } catch (dbError) {
+            console.warn("Failed to persist conversation metadata:", dbError);
+          }
+        }
+
+        // 6. Return the completed message cleanly back to the React UI frontend
         return {
           message: nuraChatResponse.text,
           resourcesInjected: needsLocalHelp,
           isCrisis,
+          sessionId: input.sessionId,
         };
       } catch (error: any) {
         console.error("Critical error in Nura chat route processing:", error);
@@ -101,4 +139,31 @@ export const nuraRouter = router({
         };
       }
     }),
+
+  getSessions: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+
+    const sessions = await db
+      .select()
+      .from(nuraConversations)
+      .orderBy(nuraConversations.createdAt);
+
+    return sessions;
+  }),
+
+  getSessionStats: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return { totalSessions: 0, crisisSessions: 0, avgMessages: 0 };
+
+    const sessions = await db.select().from(nuraConversations);
+    const totalSessions = sessions.length;
+    const crisisSessions = sessions.filter((s) => s.crisisFlag).length;
+    const avgMessages =
+      totalSessions > 0
+        ? sessions.reduce((sum, s) => sum + (s.messageCount || 0), 0) / totalSessions
+        : 0;
+
+    return { totalSessions, crisisSessions, avgMessages: Math.round(avgMessages) };
+  }),
 });
