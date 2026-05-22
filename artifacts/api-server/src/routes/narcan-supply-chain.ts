@@ -60,10 +60,10 @@ router.post('/shipments', async (req: Request, res: Response) => {
       status: 'pending',
     });
 
-    res.status(201).json({ success: true, shipment_id: result.insertId });
+    res.status(201).json({ success: true, shipment_id: (result as any)?.insertId });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error creating shipment:', error);
@@ -88,7 +88,7 @@ router.patch('/shipments/:id', async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error updating shipment:', error);
@@ -119,7 +119,7 @@ router.post('/distribute', async (req: Request, res: Response) => {
     res.status(201).json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error distributing Narcan:', error);

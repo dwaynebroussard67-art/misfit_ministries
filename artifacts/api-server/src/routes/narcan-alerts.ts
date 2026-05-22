@@ -40,7 +40,7 @@ router.post('/alert', async (req: Request, res: Response) => {
     // Find closest responders (server-side calculation)
     // Responder locations are NEVER stored - only used for distance calculation
     const closestResponders = parsed.responder_locations
-      ? findClosestResponders(parsed.lat, parsed.lng, parsed.responder_locations, 5)
+      ? findClosestResponders(parsed.lat, parsed.lng, (parsed.responder_locations as any[]) || [], 5)
       : [];
 
     console.log(`OD Alert created at ${sanitizeLocationForLogging(parsed.lat, parsed.lng)}`);
@@ -48,13 +48,13 @@ router.post('/alert', async (req: Request, res: Response) => {
 
     res.status(201).json({
       success: true,
-      alert_id: result.insertId,
+      alert_id: (result as any)?.insertId,
       closest_responders_count: closestResponders.length,
       message: 'Help is on the way. Stay with me.',
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error creating OD alert:', error);
@@ -85,7 +85,7 @@ router.post('/respond', async (req: Request, res: Response) => {
     res.json({ success: true, message: 'Response recorded' });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error recording response:', error);

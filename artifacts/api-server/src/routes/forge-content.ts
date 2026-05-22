@@ -41,6 +41,7 @@ router.post('/', async (req: Request, res: Response) => {
       slug: z.string().min(1),
       title: z.string().min(1),
       body: z.string(),
+      type: z.string().default('custom'),
     });
     const parsed = schema.parse(req.body);
     const db = await getDb();
@@ -49,6 +50,7 @@ router.post('/', async (req: Request, res: Response) => {
       slug: parsed.slug,
       title: parsed.title,
       body: parsed.body,
+      type: 'custom',
       published: false,
     });
 

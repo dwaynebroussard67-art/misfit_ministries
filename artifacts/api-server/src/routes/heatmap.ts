@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { getDb, prayers, narcanResponders } from '@workspace/db';
 import { z } from 'zod';
+import { gte, eq } from 'drizzle-orm';
 
 const router: ReturnType<typeof Router> = Router();
 
@@ -14,14 +15,14 @@ router.get('/od-hotspots', async (req: Request, res: Response) => {
 
     // Get prayers with crisis flags and location data
     const crisisPrayers = await db.select().from(prayers)
-      .where(prayers.created_at >= cutoffDate);
+      .where(gte(prayers.created_at, cutoffDate));
 
     // Group by approximate location (city/zip)
-    const hotspots = crisisPrayers
+    const hotspots = (crisisPrayers as any[])
       .filter(p => p.crisis_flag && p.latitude && p.longitude)
       .map(p => ({
-        lat: p.latitude,
-        lng: p.longitude,
+        lat: parseFloat(p.latitude as any),
+        lng: parseFloat(p.longitude as any),
         intensity: p.crisis_flag ? 2 : 1,
         timestamp: p.created_at,
         type: 'od',
@@ -45,11 +46,11 @@ router.get('/responder-density', async (req: Request, res: Response) => {
 
     const responders = await db.select().from(narcanResponders);
 
-    const density = responders
-      .filter(r => r.latitude && r.longitude)
+    const density = (responders as any[])
+      .filter(r => r.latitude && r.longitude && r.has_narcan)
       .map(r => ({
-        lat: r.latitude,
-        lng: r.longitude,
+        lat: parseFloat(r.latitude as any),
+        lng: parseFloat(r.longitude as any),
         intensity: r.has_narcan ? 1 : 0.5,
         responderId: r.id,
         hasNarcan: r.has_narcan,
@@ -58,7 +59,7 @@ router.get('/responder-density', async (req: Request, res: Response) => {
     res.json({
       density,
       totalResponders: responders.length,
-      respondersWithNarcan: responders.filter(r => r.has_narcan).length,
+      respondersWithNarcan: (responders as any[]).filter(r => r.has_narcan === true).length,
     });
   } catch (error) {
     console.error('Error fetching responder density:', error);
@@ -71,14 +72,14 @@ router.get('/coverage', async (req: Request, res: Response) => {
   try {
     const db = await getDb();
 
-    const responders = await db.select().from(narcanResponders);
-    const crisisPrayers = await db.select().from(prayers)
-      .where(prayers.crisis_flag === true);
+    const responders = (await db.select().from(narcanResponders)) as any[];
+    const crisisPrayers = (await db.select().from(prayers)
+      .where(eq(prayers.crisis_flag, true))) as any[];
 
     // Calculate coverage metrics
     const coverageAnalysis = {
       totalResponders: responders.length,
-      respondersWithNarcan: responders.filter(r => r.has_narcan).length,
+      respondersWithNarcan: responders.filter(r => r.has_narcan === true).length,
       totalCrisisIncidents: crisisPrayers.length,
       averageResponseTime: calculateAverageResponseTime(crisisPrayers),
       uncoveredAreas: identifyUncoveredAreas(responders, crisisPrayers),
@@ -110,7 +111,7 @@ router.post('/update-location', async (req: Request, res: Response) => {
     res.json({ success: true, message: 'Location updated' });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error updating location:', error);
@@ -129,4 +130,3 @@ function identifyUncoveredAreas(responders: any[], incidents: any[]): any[] {
 }
 
 export default router;
-
