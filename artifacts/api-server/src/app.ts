@@ -41,13 +41,5 @@ export function createApp(): Express {
   app.use('/api/nura/chat', nuraLimiter);
   app.use('/api/forge/auth', forgeAuthLimiter);
 
-  // Error handling middleware
-  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-    console.error('Error:', err);
-    res.status(err.status || 500).json({
-      error: err.message || 'Internal Server Error',
-    });
-  });
-
   return app;
 }

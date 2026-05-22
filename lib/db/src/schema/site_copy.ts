@@ -1,6 +1,6 @@
 import { mysqlTable, text, timestamp } from 'drizzle-orm/mysql-core';
 
-export const siteCopy = mysqlTable('site_copy', {
+export const siteCopy = mysqlTable('siteCopy', {
   key: text('key').primaryKey(),
   value: text('value').notNull(),
   description: text('description'),

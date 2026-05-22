@@ -6,6 +6,19 @@ const app = createApp();
 // Mount API routes at /api
 app.use('/api', apiRoutes);
 
+// 404 handler (must come after all routes)
+app.use((req: any, res: any) => {
+  res.status(404).json({ error: 'Not Found' });
+});
+
+// Error handling middleware (must be last)
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error('Error:', err);
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal Server Error',
+  });
+});
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

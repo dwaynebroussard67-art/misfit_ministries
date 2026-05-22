@@ -1,6 +1,6 @@
 import { mysqlTable, serial, text, int, boolean, timestamp } from 'drizzle-orm/mysql-core';
 
-export const nuraConversations = mysqlTable('nura_conversations', {
+export const nuraConversations = mysqlTable('nuraConversations', {
   id: serial('id').primaryKey(),
   session_id: text('session_id').notNull().unique(),
   message_count: int('message_count').default(0),
