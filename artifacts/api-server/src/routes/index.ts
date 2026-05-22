@@ -16,6 +16,8 @@ import narcanRespondersRouter from './narcan-responders.js';
 import narcanAlertsRouter from './narcan-alerts.js';
 import narcanSubscribeRouter from './narcan-subscribe.js';
 import responderStoriesRouter from './responder-stories.js';
+import storeRouter from './store.js';
+import narcanSupplyChainRouter from './narcan-supply-chain.js';
 
 const router = Router();
 
@@ -37,5 +39,7 @@ router.use('/narcan', narcanRespondersRouter);
 router.use('/narcan', narcanAlertsRouter);
 router.use('/narcan', narcanSubscribeRouter);
 router.use('/stories', responderStoriesRouter);
+router.use('/store', storeRouter);
+router.use('/narcan/supply-chain', narcanSupplyChainRouter);
 
 export default router;
