@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { getProducts, getProduct, createOrder } from '../utils/printify-client.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const PRINTIFY_SHOP_ID = process.env.PRINTIFY_SHOP_ID || '1';
 
@@ -59,7 +59,7 @@ router.post('/checkout', async (req: Request, res: Response) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error creating checkout:', error);

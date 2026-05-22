@@ -4,7 +4,7 @@ import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { requireForge } from '../middleware/forge-auth.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const createContentSchema = z.object({
   title: z.string().min(1),
@@ -24,7 +24,7 @@ router.get('/', async (req: Request, res: Response) => {
     const type = req.query.type as string | undefined;
     const published = req.query.published === 'true';
 
-    let query = db.select().from(content);
+    let query: any = db.select().from(content);
     if (type) query = query.where(eq(content.type, type));
     if (published) query = query.where(eq(content.published, true));
 
@@ -46,7 +46,7 @@ router.post('/', requireForge, async (req: Request, res: Response) => {
     res.status(201).json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error creating content:', error);
@@ -66,7 +66,7 @@ router.patch('/:id', requireForge, async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error updating content:', error);

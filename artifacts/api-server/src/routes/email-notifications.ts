@@ -6,7 +6,7 @@ import {
   sendShipmentNotification,
 } from '../utils/email-service.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 // POST /api/email/order-confirmation - Send order confirmation email
 router.post('/order-confirmation', async (req: Request, res: Response) => {
@@ -36,7 +36,7 @@ router.post('/order-confirmation', async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error sending order confirmation:', error);
@@ -60,7 +60,7 @@ router.post('/crisis-alert', async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error sending crisis alert:', error);
@@ -92,7 +92,7 @@ router.post('/shipment-notification', async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error sending shipment notification:', error);

@@ -4,7 +4,7 @@ import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { requireForge } from '../middleware/forge-auth.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const odAlertSchema = z.object({
   lat: z.number(),
@@ -28,7 +28,7 @@ router.post('/od-alert', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, message: 'OD alert submitted' });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error creating OD alert:', error);

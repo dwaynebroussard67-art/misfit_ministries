@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { subscribeToNotifications } from '../utils/notification-manager.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 // GET /api/notifications/subscribe - Subscribe to real-time notifications
 router.get('/subscribe', (req: Request, res: Response) => {

@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { subscribeToAlerts } from '../utils/alert-broadcaster.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 // GET /api/narcan/subscribe - Subscribe to real-time OD alerts
 router.get('/subscribe', (req: Request, res: Response) => {

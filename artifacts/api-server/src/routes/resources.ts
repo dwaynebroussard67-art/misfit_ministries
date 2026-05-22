@@ -4,7 +4,7 @@ import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { requireForge } from '../middleware/forge-auth.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const createResourceSchema = z.object({
   title: z.string().min(1),
@@ -22,7 +22,7 @@ router.get('/', async (req: Request, res: Response) => {
     const db = await getDb();
     const category = req.query.category as string | undefined;
 
-    let query = db.select().from(resources);
+    let query: any = db.select().from(resources);
     if (category) query = query.where(eq(resources.category, category));
 
     const result = await query.orderBy(resources.order, desc(resources.created_at));
@@ -43,7 +43,7 @@ router.post('/', requireForge, async (req: Request, res: Response) => {
     res.status(201).json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error creating resource:', error);
@@ -63,7 +63,7 @@ router.patch('/:id', requireForge, async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error updating resource:', error);

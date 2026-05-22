@@ -1,1 +1,132 @@
-import { Router, Request, Response } from 'express';\nimport { getDb, prayers, narcanResponders } from '@workspace/db';\nimport { z } from 'zod';\n\nconst router = Router();\n\n// GET /api/heatmap/od-hotspots - Get OD incident heatmap data\nrouter.get('/od-hotspots', async (req: Request, res: Response) => {\n  try {\n    const days = parseInt(req.query.days as string) || 30;\n    const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);\n\n    const db = await getDb();\n\n    // Get prayers with crisis flags and location data\n    const crisisPrayers = await db.select().from(prayers)\n      .where(prayers.created_at >= cutoffDate);\n\n    // Group by approximate location (city/zip)\n    const hotspots = crisisPrayers\n      .filter(p => p.crisis_flag && p.latitude && p.longitude)\n      .map(p => ({\n        lat: p.latitude,\n        lng: p.longitude,\n        intensity: p.crisis_flag ? 2 : 1,\n        timestamp: p.created_at,\n        type: 'od',\n      }));\n\n    res.json({\n      hotspots,\n      totalIncidents: hotspots.length,\n      timeRange: `${days} days`,\n    });\n  } catch (error) {\n    console.error('Error fetching heatmap data:', error);\n    res.status(500).json({ error: 'Failed to fetch heatmap data' });\n  }\n});\n\n// GET /api/heatmap/responder-density - Get responder density map\nrouter.get('/responder-density', async (req: Request, res: Response) => {\n  try {\n    const db = await getDb();\n\n    const responders = await db.select().from(narcanResponders);\n\n    const density = responders\n      .filter(r => r.latitude && r.longitude)\n      .map(r => ({\n        lat: r.latitude,\n        lng: r.longitude,\n        intensity: r.has_narcan ? 1 : 0.5,\n        responderId: r.id,\n        hasNarcan: r.has_narcan,\n      }));\n\n    res.json({\n      density,\n      totalResponders: responders.length,\n      respondersWithNarcan: responders.filter(r => r.has_narcan).length,\n    });\n  } catch (error) {\n    console.error('Error fetching responder density:', error);\n    res.status(500).json({ error: 'Failed to fetch responder density' });\n  }\n});\n\n// GET /api/heatmap/coverage - Get coverage analysis\nrouter.get('/coverage', async (req: Request, res: Response) => {\n  try {\n    const db = await getDb();\n\n    const responders = await db.select().from(narcanResponders);\n    const crisisPrayers = await db.select().from(prayers)\n      .where(prayers.crisis_flag === true);\n\n    // Calculate coverage metrics\n    const coverageAnalysis = {\n      totalResponders: responders.length,\n      respondersWithNarcan: responders.filter(r => r.has_narcan).length,\n      totalCrisisIncidents: crisisPrayers.length,\n      averageResponseTime: calculateAverageResponseTime(crisisPrayers),\n      uncoveredAreas: identifyUncoveredAreas(responders, crisisPrayers),\n    };\n\n    res.json(coverageAnalysis);\n  } catch (error) {\n    console.error('Error analyzing coverage:', error);\n    res.status(500).json({ error: 'Failed to analyze coverage' });\n  }\n});\n\n// POST /api/heatmap/update-location - Update responder location\nrouter.post('/update-location', async (req: Request, res: Response) => {\n  try {\n    const schema = z.object({\n      responderId: z.string(),\n      latitude: z.number(),\n      longitude: z.number(),\n    });\n\n    const parsed = schema.parse(req.body);\n    const db = await getDb();\n\n    // Update responder location\n    // Implementation depends on your database structure\n    console.log(`Updated location for responder ${parsed.responderId}`);\n\n    res.json({ success: true, message: 'Location updated' });\n  } catch (error) {\n    if (error instanceof z.ZodError) {\n      res.status(400).json({ error: error.errors });\n      return;\n    }\n    console.error('Error updating location:', error);\n    res.status(500).json({ error: 'Failed to update location' });\n  }\n});\n\nfunction calculateAverageResponseTime(incidents: any[]): number {\n  // Placeholder - implement based on your data structure\n  return 5; // minutes\n}\n\nfunction identifyUncoveredAreas(responders: any[], incidents: any[]): any[] {\n  // Placeholder - identify areas with incidents but no nearby responders\n  return [];\n}\n\nexport default router;\n
+import { Router, Request, Response } from 'express';
+import { getDb, prayers, narcanResponders } from '@workspace/db';
+import { z } from 'zod';
+
+const router: ReturnType<typeof Router> = Router();
+
+// GET /api/heatmap/od-hotspots - Get OD incident heatmap data
+router.get('/od-hotspots', async (req: Request, res: Response) => {
+  try {
+    const days = parseInt(req.query.days as string) || 30;
+    const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+    const db = await getDb();
+
+    // Get prayers with crisis flags and location data
+    const crisisPrayers = await db.select().from(prayers)
+      .where(prayers.created_at >= cutoffDate);
+
+    // Group by approximate location (city/zip)
+    const hotspots = crisisPrayers
+      .filter(p => p.crisis_flag && p.latitude && p.longitude)
+      .map(p => ({
+        lat: p.latitude,
+        lng: p.longitude,
+        intensity: p.crisis_flag ? 2 : 1,
+        timestamp: p.created_at,
+        type: 'od',
+      }));
+
+    res.json({
+      hotspots,
+      totalIncidents: hotspots.length,
+      timeRange: `${days} days`,
+    });
+  } catch (error) {
+    console.error('Error fetching heatmap data:', error);
+    res.status(500).json({ error: 'Failed to fetch heatmap data' });
+  }
+});
+
+// GET /api/heatmap/responder-density - Get responder density map
+router.get('/responder-density', async (req: Request, res: Response) => {
+  try {
+    const db = await getDb();
+
+    const responders = await db.select().from(narcanResponders);
+
+    const density = responders
+      .filter(r => r.latitude && r.longitude)
+      .map(r => ({
+        lat: r.latitude,
+        lng: r.longitude,
+        intensity: r.has_narcan ? 1 : 0.5,
+        responderId: r.id,
+        hasNarcan: r.has_narcan,
+      }));
+
+    res.json({
+      density,
+      totalResponders: responders.length,
+      respondersWithNarcan: responders.filter(r => r.has_narcan).length,
+    });
+  } catch (error) {
+    console.error('Error fetching responder density:', error);
+    res.status(500).json({ error: 'Failed to fetch responder density' });
+  }
+});
+
+// GET /api/heatmap/coverage - Get coverage analysis
+router.get('/coverage', async (req: Request, res: Response) => {
+  try {
+    const db = await getDb();
+
+    const responders = await db.select().from(narcanResponders);
+    const crisisPrayers = await db.select().from(prayers)
+      .where(prayers.crisis_flag === true);
+
+    // Calculate coverage metrics
+    const coverageAnalysis = {
+      totalResponders: responders.length,
+      respondersWithNarcan: responders.filter(r => r.has_narcan).length,
+      totalCrisisIncidents: crisisPrayers.length,
+      averageResponseTime: calculateAverageResponseTime(crisisPrayers),
+      uncoveredAreas: identifyUncoveredAreas(responders, crisisPrayers),
+    };
+
+    res.json(coverageAnalysis);
+  } catch (error) {
+    console.error('Error analyzing coverage:', error);
+    res.status(500).json({ error: 'Failed to analyze coverage' });
+  }
+});
+
+// POST /api/heatmap/update-location - Update responder location
+router.post('/update-location', async (req: Request, res: Response) => {
+  try {
+    const schema = z.object({
+      responderId: z.string(),
+      latitude: z.number(),
+      longitude: z.number(),
+    });
+
+    const parsed = schema.parse(req.body);
+    const db = await getDb();
+
+    // Update responder location
+    // Implementation depends on your database structure
+    console.log(`Updated location for responder ${parsed.responderId}`);
+
+    res.json({ success: true, message: 'Location updated' });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: error.errors });
+      return;
+    }
+    console.error('Error updating location:', error);
+    res.status(500).json({ error: 'Failed to update location' });
+  }
+});
+
+function calculateAverageResponseTime(incidents: any[]): number {
+  // Placeholder - implement based on your data structure
+  return 5; // minutes
+}
+
+function identifyUncoveredAreas(responders: any[], incidents: any[]): any[] {
+  // Placeholder - identify areas with incidents but no nearby responders
+  return [];
+}
+
+export default router;
+

@@ -28,7 +28,7 @@ import auditLogsRouter from './audit-logs.js';
 import heatmapRouter from './heatmap.js';
 import videoTestimonialsRouter from './video-testimonials.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 // Mount all route modules
 router.use('/prayers', prayersRouter);

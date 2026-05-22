@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { getDb, prayers, testimonies, nuraConversations } from '@workspace/db';
 import { desc } from 'drizzle-orm';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 // GET /api/stats/overview - Get overview stats
 router.get('/overview', async (req: Request, res: Response) => {

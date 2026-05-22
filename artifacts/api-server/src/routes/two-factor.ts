@@ -11,7 +11,7 @@ import {
   sendOTPViaEmail,
 } from '../utils/two-factor.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 // POST /api/2fa/setup - Setup 2FA for user
 router.post('/setup', async (req: Request, res: Response) => {
@@ -64,7 +64,7 @@ router.post('/setup', async (req: Request, res: Response) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error setting up 2FA:', error);
@@ -98,7 +98,7 @@ router.post('/verify', async (req: Request, res: Response) => {
     res.json({ success: true, message: '2FA enabled successfully' });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error verifying 2FA:', error);
@@ -137,7 +137,7 @@ router.post('/request-code', async (req: Request, res: Response) => {
     res.json({ success: true, message: `Code sent via ${config.method}` });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error requesting code:', error);

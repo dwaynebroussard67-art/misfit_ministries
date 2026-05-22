@@ -1,1 +1,119 @@
-import { useNotifications, Notification } from '../hooks/useNotifications';\nimport { useState } from 'react';\n\ninterface NotificationCenterProps {\n  userId: string;\n  role: 'admin' | 'moderator';\n}\n\nexport function NotificationCenter({ userId, role }: NotificationCenterProps) {\n  const { notifications, isConnected, clearNotification, clearAll } = useNotifications(userId, role);\n  const [isOpen, setIsOpen] = useState(false);\n\n  const unreadCount = notifications.length;\n  const highPriorityCount = notifications.filter(n => n.priority === 'high').length;\n\n  return (\n    <div className=\"fixed top-4 right-4 z-50\">\n      {/* Notification Bell */}\n      <button\n        onClick={() => setIsOpen(!isOpen)}\n        className=\"relative bg-gold text-dark px-4 py-2 rounded-full font-bold hover:bg-yellow-600 transition\"\n      >\n        🔔 Notifications\n        {unreadCount > 0 && (\n          <span className=\"absolute -top-2 -right-2 bg-red text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center\">\n            {unreadCount > 9 ? '9+' : unreadCount}\n          </span>\n        )}\n      </button>\n\n      {/* Notification Panel */}\n      {isOpen && (\n        <div className=\"absolute top-12 right-0 w-96 bg-surface rounded-lg shadow-lg border border-dark-border max-h-96 overflow-y-auto\">\n          {/* Header */}\n          <div className=\"sticky top-0 bg-dark-border p-4 border-b border-dark-border flex justify-between items-center\">\n            <div>\n              <h3 className=\"font-bold text-gold\">Notifications</h3>\n              <p className=\"text-text-secondary text-xs\">\n                {isConnected ? '🟢 Connected' : '🔴 Disconnected'}\n              </p>\n            </div>\n            {unreadCount > 0 && (\n              <button\n                onClick={clearAll}\n                className=\"text-text-secondary hover:text-text-primary text-xs font-bold\"\n              >\n                Clear All\n              </button>\n            )}\n          </div>\n\n          {/* Notifications List */}\n          {notifications.length === 0 ? (\n            <div className=\"p-8 text-center\">\n              <p className=\"text-text-secondary\">No notifications</p>\n            </div>\n          ) : (\n            <div className=\"divide-y divide-dark-border\">\n              {notifications.map((notification, i) => (\n                <NotificationItem\n                  key={i}\n                  notification={notification}\n                  onDismiss={() => clearNotification(i)}\n                />\n              ))}\n            </div>\n          )}\n        </div>\n      )}\n    </div>\n  );\n}\n\nfunction NotificationItem({\n  notification,\n  onDismiss,\n}: {\n  notification: Notification;\n  onDismiss: () => void;\n}) {\n  const priorityColor =\n    notification.priority === 'high'\n      ? 'border-l-4 border-red bg-red/10'\n      : notification.priority === 'normal'\n      ? 'border-l-4 border-gold bg-gold/10'\n      : 'border-l-4 border-text-secondary bg-text-secondary/10';\n\n  const typeEmoji = {\n    prayer_crisis: '🚨',\n    testimony_pending: '📝',\n    shipment_arrived: '📦',\n    order_completed: '💳',\n    content_approved: '✅',\n  }[notification.type];\n\n  return (\n    <div className={`p-4 ${priorityColor} hover:bg-dark-border/50 transition cursor-pointer`}>\n      <div className=\"flex justify-between items-start mb-2\">\n        <div className=\"flex items-start gap-2\">\n          <span className=\"text-lg\">{typeEmoji}</span>\n          <div>\n            <p className=\"font-bold text-text-primary\">{notification.title}</p>\n            <p className=\"text-text-secondary text-sm\">{notification.message}</p>\n          </div>\n        </div>\n        <button\n          onClick={onDismiss}\n          className=\"text-text-secondary hover:text-text-primary font-bold\"\n        >\n          ✕\n        </button>\n      </div>\n      <p className=\"text-text-secondary text-xs\">\n        {new Date(notification.timestamp).toLocaleTimeString()}\n      </p>\n    </div>\n  );\n}\n
+import { useNotifications, Notification } from '../hooks/useNotifications';
+import { useState } from 'react';
+
+interface NotificationCenterProps {
+  userId: string;
+  role: 'admin' | 'moderator';
+}
+
+export function NotificationCenter({ userId, role }: NotificationCenterProps) {
+  const { notifications, isConnected, clearNotification, clearAll } = useNotifications(userId, role);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const unreadCount = notifications.length;
+  const highPriorityCount = notifications.filter(n => n.priority === 'high').length;
+
+  return (
+    <div className=\"fixed top-4 right-4 z-50\">
+      {/* Notification Bell */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className=\"relative bg-gold text-dark px-4 py-2 rounded-full font-bold hover:bg-yellow-600 transition\"
+      >
+        🔔 Notifications
+        {unreadCount > 0 && (
+          <span className=\"absolute -top-2 -right-2 bg-red text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center\">
+            {unreadCount > 9 ? '9+' : unreadCount}
+          </span>
+        )}
+      </button>
+
+      {/* Notification Panel */}
+      {isOpen && (
+        <div className=\"absolute top-12 right-0 w-96 bg-surface rounded-lg shadow-lg border border-dark-border max-h-96 overflow-y-auto\">
+          {/* Header */}
+          <div className=\"sticky top-0 bg-dark-border p-4 border-b border-dark-border flex justify-between items-center\">
+            <div>
+              <h3 className=\"font-bold text-gold\">Notifications</h3>
+              <p className=\"text-text-secondary text-xs\">
+                {isConnected ? '🟢 Connected' : '🔴 Disconnected'}
+              </p>
+            </div>
+            {unreadCount > 0 && (
+              <button
+                onClick={clearAll}
+                className=\"text-text-secondary hover:text-text-primary text-xs font-bold\"
+              >
+                Clear All
+              </button>
+            )}
+          </div>
+
+          {/* Notifications List */}
+          {notifications.length === 0 ? (
+            <div className=\"p-8 text-center\">
+              <p className=\"text-text-secondary\">No notifications</p>
+            </div>
+          ) : (
+            <div className=\"divide-y divide-dark-border\">
+              {notifications.map((notification, i) => (
+                <NotificationItem
+                  key={i}
+                  notification={notification}
+                  onDismiss={() => clearNotification(i)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NotificationItem({
+  notification,
+  onDismiss,
+}: {
+  notification: Notification;
+  onDismiss: () => void;
+}) {
+  const priorityColor =
+    notification.priority === 'high'
+      ? 'border-l-4 border-red bg-red/10'
+      : notification.priority === 'normal'
+      ? 'border-l-4 border-gold bg-gold/10'
+      : 'border-l-4 border-text-secondary bg-text-secondary/10';
+
+  const typeEmoji = {
+    prayer_crisis: '🚨',
+    testimony_pending: '📝',
+    shipment_arrived: '📦',
+    order_completed: '💳',
+    content_approved: '✅',
+  }[notification.type];
+
+  return (
+    <div className={`p-4 ${priorityColor} hover:bg-dark-border/50 transition cursor-pointer`}>
+      <div className=\"flex justify-between items-start mb-2\">
+        <div className=\"flex items-start gap-2\">
+          <span className=\"text-lg\">{typeEmoji}</span>
+          <div>
+            <p className=\"font-bold text-text-primary\">{notification.title}</p>
+            <p className=\"text-text-secondary text-sm\">{notification.message}</p>
+          </div>
+        </div>
+        <button
+          onClick={onDismiss}
+          className=\"text-text-secondary hover:text-text-primary font-bold\"
+        >
+          ✕
+        </button>
+      </div>
+      <p className=\"text-text-secondary text-xs\">
+        {new Date(notification.timestamp).toLocaleTimeString()}
+      </p>
+    </div>
+  );
+}
+

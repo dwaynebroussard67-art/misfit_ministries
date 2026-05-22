@@ -3,7 +3,7 @@ import { getDb, auditLogs } from '@workspace/db';
 import { desc, gte, eq } from 'drizzle-orm';
 import { z } from 'zod';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 // GET /api/audit-logs - Get all audit logs
 router.get('/', async (req: Request, res: Response) => {
@@ -15,7 +15,7 @@ router.get('/', async (req: Request, res: Response) => {
     const entityType = req.query.entityType as string;
 
     const db = await getDb();
-    let query = db.select().from(auditLogs);
+    let query: any = db.select().from(auditLogs);
 
     if (adminEmail) {
       query = query.where(eq(auditLogs.admin_email, adminEmail));

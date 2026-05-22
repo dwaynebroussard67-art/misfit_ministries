@@ -3,7 +3,7 @@ import { getDb, narcanResponders } from '@workspace/db';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const registerResponderSchema = z.object({
   user_id: z.string().min(1),
@@ -45,7 +45,7 @@ router.post('/register', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, message: 'Registered as Misfit First Responder' });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error registering responder:', error);
@@ -84,7 +84,7 @@ router.patch('/responder/:userId', async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error updating responder:', error);

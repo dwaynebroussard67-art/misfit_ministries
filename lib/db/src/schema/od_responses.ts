@@ -13,16 +13,16 @@ export const odResponses = mysqlTable('od_responses', {
   narcan_administered: text('narcan_administered'),
   created_at: timestamp('created_at').defaultNow(),
   updated_at: timestamp('updated_at').defaultNow().onUpdateNow(),
-}, (table) => [
-  foreignKey({
+}, (table) => ({
+  fk_alert: foreignKey({
     columns: [table.alert_id],
     foreignColumns: [odAlerts.id],
   }),
-  foreignKey({
+  fk_responder: foreignKey({
     columns: [table.responder_id],
     foreignColumns: [narcanResponders.id],
   }),
-]);
+}));
 
 export type OdResponse = typeof odResponses.$inferSelect;
 export type NewOdResponse = typeof odResponses.$inferInsert;

@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { requireForge } from '../middleware/forge-auth.js';
 import { startMediaGenerator, stopMediaGenerator, generateContent, getGeneratorStatus } from '../utils/media-generator.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 // GET /api/forge/media/status - Get generator status
 router.get('/status', requireForge, async (req: Request, res: Response) => {

@@ -4,7 +4,7 @@ import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { findClosestResponders, isAlertExpired, sanitizeLocationForLogging } from '../utils/privacy-location.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const odAlertSchema = z.object({
   lat: z.number(),

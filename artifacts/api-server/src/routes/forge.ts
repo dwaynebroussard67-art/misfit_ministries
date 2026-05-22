@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { generateForgeToken, setForgeAuthCookie, clearForgeAuthCookie, verifyForgeToken } from '../middleware/forge-auth.js';
 import { requireForge } from '../middleware/forge-auth.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const forgeAuthSchema = z.object({
   passphrase: z.string().min(1),
@@ -27,7 +27,7 @@ router.post('/auth', async (req: Request, res: Response) => {
     res.json({ success: true, message: 'Authenticated' });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error in Forge auth:', error);

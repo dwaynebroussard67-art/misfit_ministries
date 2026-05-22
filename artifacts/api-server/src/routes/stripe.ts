@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 import { z } from 'zod';
 import { requireForge } from '../middleware/forge-auth.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-04-10',
@@ -37,7 +37,7 @@ router.post('/checkout', async (req: Request, res: Response) => {
     res.json({ session_id: session.id, url: session.url });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error creating checkout session:', error);

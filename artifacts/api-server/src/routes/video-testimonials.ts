@@ -1,1 +1,228 @@
-import { Router, Request, Response } from 'express';\nimport { getDb, videoTestimonials, videoUploadSessions } from '@workspace/db';\nimport { eq, desc } from 'drizzle-orm';\nimport { z } from 'zod';\nimport crypto from 'crypto';\n\nconst router = Router();\n\n// POST /api/video-testimonials/initiate-upload - Start video upload session\nrouter.post('/initiate-upload', async (req: Request, res: Response) => {\n  try {\n    const schema = z.object({\n      userId: z.string(),\n      fileName: z.string(),\n      fileSize: z.number(),\n      mimeType: z.string(),\n    });\n\n    const parsed = schema.parse(req.body);\n    const db = await getDb();\n    const uploadToken = crypto.randomBytes(32).toString('hex');\n    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours\n\n    await db.insert(videoUploadSessions).values({\n      user_id: parsed.userId,\n      upload_token: uploadToken,\n      file_name: parsed.fileName,\n      file_size: parsed.fileSize,\n      mime_type: parsed.mimeType,\n      expires_at: expiresAt,\n    });\n\n    res.json({\n      uploadToken,\n      expiresAt,\n      message: 'Upload session created',\n    });\n  } catch (error) {\n    if (error instanceof z.ZodError) {\n      res.status(400).json({ error: error.errors });\n      return;\n    }\n    console.error('Error initiating upload:', error);\n    res.status(500).json({ error: 'Failed to initiate upload' });\n  }\n});\n\n// POST /api/video-testimonials - Submit video testimonial\nrouter.post('/', async (req: Request, res: Response) => {\n  try {\n    const schema = z.object({\n      uploadToken: z.string(),\n      userId: z.string(),\n      userName: z.string().optional(),\n      title: z.string(),\n      description: z.string(),\n      videoUrl: z.string().url(),\n      thumbnailUrl: z.string().url().optional(),\n      durationSeconds: z.number(),\n      isAnonymous: z.boolean().default(false),\n    });\n\n    const parsed = schema.parse(req.body);\n    const db = await getDb();\n\n    // Verify upload session\n    const session = await db.select().from(videoUploadSessions)\n      .where(eq(videoUploadSessions.upload_token, parsed.uploadToken));\n\n    if (session.length === 0) {\n      res.status(400).json({ error: 'Invalid upload token' });\n      return;\n    }\n\n    // Create testimonial\n    const result = await db.insert(videoTestimonials).values({\n      user_id: parsed.userId,\n      user_name: parsed.isAnonymous ? 'Anonymous' : parsed.userName,\n      video_url: parsed.videoUrl,\n      thumbnail_url: parsed.thumbnailUrl,\n      title: parsed.title,\n      description: parsed.description,\n      duration_seconds: parsed.durationSeconds,\n      is_anonymous: parsed.isAnonymous,\n      status: 'pending',\n    });\n\n    res.json({\n      success: true,\n      testimonialId: result.insertId,\n      message: 'Testimonial submitted for moderation',\n    });\n  } catch (error) {\n    if (error instanceof z.ZodError) {\n      res.status(400).json({ error: error.errors });\n      return;\n    }\n    console.error('Error submitting testimonial:', error);\n    res.status(500).json({ error: 'Failed to submit testimonial' });\n  }\n});\n\n// GET /api/video-testimonials - Get published testimonials\nrouter.get('/', async (req: Request, res: Response) => {\n  try {\n    const limit = parseInt(req.query.limit as string) || 20;\n    const offset = parseInt(req.query.offset as string) || 0;\n\n    const db = await getDb();\n    const testimonials = await db.select().from(videoTestimonials)\n      .where(eq(videoTestimonials.status, 'approved'))\n      .orderBy(desc(videoTestimonials.published_at))\n      .limit(limit)\n      .offset(offset);\n\n    res.json(testimonials);\n  } catch (error) {\n    console.error('Error fetching testimonials:', error);\n    res.status(500).json({ error: 'Failed to fetch testimonials' });\n  }\n});\n\n// GET /api/video-testimonials/:id - Get single testimonial\nrouter.get('/:id', async (req: Request, res: Response) => {\n  try {\n    const db = await getDb();\n    const testimonial = await db.select().from(videoTestimonials)\n      .where(eq(videoTestimonials.id, parseInt(req.params.id)));\n\n    if (testimonial.length === 0) {\n      res.status(404).json({ error: 'Testimonial not found' });\n      return;\n    }\n\n    // Increment view count\n    await db.update(videoTestimonials)\n      .set({ view_count: (testimonial[0].view_count || 0) + 1 })\n      .where(eq(videoTestimonials.id, parseInt(req.params.id)));\n\n    res.json(testimonial[0]);\n  } catch (error) {\n    console.error('Error fetching testimonial:', error);\n    res.status(500).json({ error: 'Failed to fetch testimonial' });\n  }\n});\n\n// POST /api/video-testimonials/:id/approve - Approve testimonial (ADMIN)\nrouter.post('/:id/approve', async (req: Request, res: Response) => {\n  try {\n    const schema = z.object({\n      adminId: z.string(),\n      adminEmail: z.string().email(),\n      moderationNotes: z.string().optional(),\n    });\n\n    const parsed = schema.parse(req.body);\n    const db = await getDb();\n\n    await db.update(videoTestimonials)\n      .set({\n        status: 'approved',\n        moderated_by: parsed.adminEmail,\n        moderation_notes: parsed.moderationNotes,\n        moderated_at: new Date(),\n        published_at: new Date(),\n      })\n      .where(eq(videoTestimonials.id, parseInt(req.params.id)));\n\n    res.json({ success: true, message: 'Testimonial approved' });\n  } catch (error) {\n    if (error instanceof z.ZodError) {\n      res.status(400).json({ error: error.errors });\n      return;\n    }\n    console.error('Error approving testimonial:', error);\n    res.status(500).json({ error: 'Failed to approve testimonial' });\n  }\n});\n\n// POST /api/video-testimonials/:id/reject - Reject testimonial (ADMIN)\nrouter.post('/:id/reject', async (req: Request, res: Response) => {\n  try {\n    const schema = z.object({\n      adminId: z.string(),\n      adminEmail: z.string().email(),\n      reason: z.string(),\n    });\n\n    const parsed = schema.parse(req.body);\n    const db = await getDb();\n\n    await db.update(videoTestimonials)\n      .set({\n        status: 'rejected',\n        moderated_by: parsed.adminEmail,\n        moderation_notes: parsed.reason,\n        moderated_at: new Date(),\n      })\n      .where(eq(videoTestimonials.id, parseInt(req.params.id)));\n\n    res.json({ success: true, message: 'Testimonial rejected' });\n  } catch (error) {\n    if (error instanceof z.ZodError) {\n      res.status(400).json({ error: error.errors });\n      return;\n    }\n    console.error('Error rejecting testimonial:', error);\n    res.status(500).json({ error: 'Failed to reject testimonial' });\n  }\n});\n\n// GET /api/video-testimonials/pending - Get pending testimonials (ADMIN)\nrouter.get('/pending', async (req: Request, res: Response) => {\n  try {\n    const db = await getDb();\n    const pending = await db.select().from(videoTestimonials)\n      .where(eq(videoTestimonials.status, 'pending'))\n      .orderBy(videoTestimonials.created_at);\n\n    res.json(pending);\n  } catch (error) {\n    console.error('Error fetching pending testimonials:', error);\n    res.status(500).json({ error: 'Failed to fetch pending testimonials' });\n  }\n});\n\nexport default router;\n
+import { Router, Request, Response } from 'express';
+import { getDb, videoTestimonials, videoUploadSessions } from '@workspace/db';
+import { eq, desc } from 'drizzle-orm';
+import { z } from 'zod';
+import crypto from 'crypto';
+
+const router: ReturnType<typeof Router> = Router();
+
+// POST /api/video-testimonials/initiate-upload - Start video upload session
+router.post('/initiate-upload', async (req: Request, res: Response) => {
+  try {
+    const schema = z.object({
+      userId: z.string(),
+      fileName: z.string(),
+      fileSize: z.number(),
+      mimeType: z.string(),
+    });
+
+    const parsed = schema.parse(req.body);
+    const db = await getDb();
+    const uploadToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    await db.insert(videoUploadSessions).values({
+      user_id: parsed.userId,
+      upload_token: uploadToken,
+      file_name: parsed.fileName,
+      file_size: parsed.fileSize,
+      mime_type: parsed.mimeType,
+      expires_at: expiresAt,
+    });
+
+    res.json({
+      uploadToken,
+      expiresAt,
+      message: 'Upload session created',
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: error.flatten().fieldErrors });
+      return;
+    }
+    console.error('Error initiating upload:', error);
+    res.status(500).json({ error: 'Failed to initiate upload' });
+  }
+});
+
+// POST /api/video-testimonials - Submit video testimonial
+router.post('/', async (req: Request, res: Response) => {
+  try {
+    const schema = z.object({
+      uploadToken: z.string(),
+      userId: z.string(),
+      userName: z.string().optional(),
+      title: z.string(),
+      description: z.string(),
+      videoUrl: z.string().url(),
+      thumbnailUrl: z.string().url().optional(),
+      durationSeconds: z.number(),
+      isAnonymous: z.boolean().default(false),
+    });
+
+    const parsed = schema.parse(req.body);
+    const db = await getDb();
+
+    // Verify upload session
+    const session = await db.select().from(videoUploadSessions)
+      .where(eq(videoUploadSessions.upload_token, parsed.uploadToken));
+
+    if (session.length === 0) {
+      res.status(400).json({ error: 'Invalid upload token' });
+      return;
+    }
+
+    // Create testimonial
+    const result: any = await db.insert(videoTestimonials).values({
+      user_id: parsed.userId,
+      user_name: parsed.isAnonymous ? 'Anonymous' : parsed.userName,
+      video_url: parsed.videoUrl,
+      thumbnail_url: parsed.thumbnailUrl,
+      title: parsed.title,
+      description: parsed.description,
+      duration_seconds: parsed.durationSeconds,
+      is_anonymous: parsed.isAnonymous,
+      status: 'pending',
+    });
+
+    res.json({
+      success: true,
+      testimonialId: result.insertId as number,
+      message: 'Testimonial submitted for moderation',
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: error.flatten().fieldErrors });
+      return;
+    }
+    console.error('Error submitting testimonial:', error);
+    res.status(500).json({ error: 'Failed to submit testimonial' });
+  }
+});
+
+// GET /api/video-testimonials - Get published testimonials
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 20;
+    const offset = parseInt(req.query.offset as string) || 0;
+
+    const db = await getDb();
+    const testimonials = await db.select().from(videoTestimonials)
+      .where(eq(videoTestimonials.status, 'approved'))
+      .orderBy(desc(videoTestimonials.published_at))
+      .limit(limit)
+      .offset(offset);
+
+    res.json(testimonials);
+  } catch (error) {
+    console.error('Error fetching testimonials:', error);
+    res.status(500).json({ error: 'Failed to fetch testimonials' });
+  }
+});
+
+// GET /api/video-testimonials/:id - Get single testimonial
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const db = await getDb();
+    const testimonial = await db.select().from(videoTestimonials)
+      .where(eq(videoTestimonials.id, parseInt(req.params.id)));
+
+    if (testimonial.length === 0) {
+      res.status(404).json({ error: 'Testimonial not found' });
+      return;
+    }
+
+    // Increment view count
+    await db.update(videoTestimonials)
+      .set({ view_count: (testimonial[0].view_count || 0) + 1 })
+      .where(eq(videoTestimonials.id, parseInt(req.params.id)));
+
+    res.json(testimonial[0]);
+  } catch (error) {
+    console.error('Error fetching testimonial:', error);
+    res.status(500).json({ error: 'Failed to fetch testimonial' });
+  }
+});
+
+// POST /api/video-testimonials/:id/approve - Approve testimonial (ADMIN)
+router.post('/:id/approve', async (req: Request, res: Response) => {
+  try {
+    const schema = z.object({
+      adminId: z.string(),
+      adminEmail: z.string().email(),
+      moderationNotes: z.string().optional(),
+    });
+
+    const parsed = schema.parse(req.body);
+    const db = await getDb();
+
+    await db.update(videoTestimonials)
+      .set({
+        status: 'approved',
+        moderated_by: parsed.adminEmail,
+        moderation_notes: parsed.moderationNotes,
+        moderated_at: new Date(),
+        published_at: new Date(),
+      })
+      .where(eq(videoTestimonials.id, parseInt(req.params.id)));
+
+    res.json({ success: true, message: 'Testimonial approved' });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: error.flatten().fieldErrors });
+      return;
+    }
+    console.error('Error approving testimonial:', error);
+    res.status(500).json({ error: 'Failed to approve testimonial' });
+  }
+});
+
+// POST /api/video-testimonials/:id/reject - Reject testimonial (ADMIN)
+router.post('/:id/reject', async (req: Request, res: Response) => {
+  try {
+    const schema = z.object({
+      adminId: z.string(),
+      adminEmail: z.string().email(),
+      reason: z.string(),
+    });
+
+    const parsed = schema.parse(req.body);
+    const db = await getDb();
+
+    await db.update(videoTestimonials)
+      .set({
+        status: 'rejected',
+        moderated_by: parsed.adminEmail,
+        moderation_notes: parsed.reason,
+        moderated_at: new Date(),
+      })
+      .where(eq(videoTestimonials.id, parseInt(req.params.id)));
+
+    res.json({ success: true, message: 'Testimonial rejected' });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: error.flatten().fieldErrors });
+      return;
+    }
+    console.error('Error rejecting testimonial:', error);
+    res.status(500).json({ error: 'Failed to reject testimonial' });
+  }
+});
+
+// GET /api/video-testimonials/pending - Get pending testimonials (ADMIN)
+router.get('/pending', async (req: Request, res: Response) => {
+  try {
+    const db = await getDb();
+    const pending = await db.select().from(videoTestimonials)
+      .where(eq(videoTestimonials.status, 'pending'))
+      .orderBy(videoTestimonials.created_at);
+
+    res.json(pending);
+  } catch (error) {
+    console.error('Error fetching pending testimonials:', error);
+    res.status(500).json({ error: 'Failed to fetch pending testimonials' });
+  }
+});
+
+export default router;
+

@@ -4,7 +4,7 @@ import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { requireForge } from '../middleware/forge-auth.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const createTestimonySchema = z.object({
   name: z.string().optional(),
@@ -48,7 +48,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, message: 'Testimony submitted for review' });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error creating testimony:', error);
@@ -68,7 +68,7 @@ router.patch('/:id', requireForge, async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error updating testimony:', error);

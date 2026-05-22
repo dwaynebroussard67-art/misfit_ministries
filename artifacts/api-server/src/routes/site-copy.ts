@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { requireForge } from '../middleware/forge-auth.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const SITE_COPY_DEFAULTS: Record<string, string> = {
   'home.hero.eyebrow': 'WELCOME TO MISFIT MINISTRIES',

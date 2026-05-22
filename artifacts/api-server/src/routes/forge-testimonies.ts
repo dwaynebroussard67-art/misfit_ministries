@@ -3,7 +3,7 @@ import { getDb, testimonies } from '@workspace/db';
 import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const updateTestimonySchema = z.object({
   approved: z.boolean().optional(),
@@ -58,7 +58,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error updating testimony:', error);

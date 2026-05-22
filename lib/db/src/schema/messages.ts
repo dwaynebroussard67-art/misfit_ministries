@@ -7,12 +7,12 @@ export const messages = mysqlTable('messages', {
   role: text('role').notNull(),
   content: text('content').notNull(),
   created_at: timestamp('created_at').defaultNow(),
-}, (table) => [
-  foreignKey({
+}, (table) => ({
+  fk: foreignKey({
     columns: [table.conversation_id],
     foreignColumns: [conversations.id],
   }),
-]);
+}));
 
 export type Message = typeof messages.$inferSelect;
 export type NewMessage = typeof messages.$inferInsert;

@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { getDb, prayers, testimonies, orders, narcanResponders, narcanShipments } from '@workspace/db';
 import { count, eq, gte } from 'drizzle-orm';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 // GET /api/analytics/dashboard - Get all dashboard stats
 router.get('/dashboard', async (req: Request, res: Response) => {
@@ -16,7 +16,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
     const prayersThisMonth = await db.select({ count: count() }).from(prayers)
       .where(gte(prayers.created_at, thirtyDaysAgo));
     const crisisPrayers = await db.select({ count: count() }).from(prayers)
-      .where(eq(prayers.isCrisis, true));
+      .where(eq(prayers.crisis_flag, true));
 
     // Testimony stats
     const totalTestimonies = await db.select({ count: count() }).from(testimonies);
@@ -79,7 +79,7 @@ router.get('/prayers', async (req: Request, res: Response) => {
 
     const stats = {
       total: allPrayers.length,
-      crisis: allPrayers.filter(p => p.isCrisis).length,
+      crisis: allPrayers.filter(p => p.crisis_flag).length,
       byDay: groupByDay(allPrayers),
     };
 

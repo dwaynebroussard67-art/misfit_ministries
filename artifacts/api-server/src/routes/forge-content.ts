@@ -3,7 +3,7 @@ import { getDb, content, siteCopy } from '@workspace/db';
 import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const updateContentSchema = z.object({
   title: z.string().optional(),
@@ -55,7 +55,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error creating content:', error);
@@ -75,7 +75,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error updating content:', error);
@@ -119,7 +119,7 @@ router.put('/site-copy/:key', async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error updating site copy:', error);

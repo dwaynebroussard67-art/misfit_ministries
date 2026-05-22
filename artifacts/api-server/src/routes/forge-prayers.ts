@@ -3,7 +3,7 @@ import { getDb, prayers } from '@workspace/db';
 import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const updatePrayerSchema = z.object({
   status: z.enum(['pending', 'approved', 'rejected']).optional(),
@@ -19,8 +19,8 @@ router.get('/', async (req: Request, res: Response) => {
 
     res.json({
       total: allPrayers.length,
-      crisis_count: allPrayers.filter(p => p.isCrisis).length,
-      pending: allPrayers.filter(p => !p.isCrisis).length,
+      crisis_count: allPrayers.filter(p => p.crisis_flag).length,
+      pending: allPrayers.filter(p => !p.crisis_flag).length,
       prayers: allPrayers,
     });
   } catch (error) {
@@ -34,7 +34,7 @@ router.get('/crisis', async (req: Request, res: Response) => {
   try {
     const db = await getDb();
     const crisisPrayers = await db.select().from(prayers)
-      .where(eq(prayers.isCrisis, true))
+      .where(eq(prayers.crisis_flag, true))
       .orderBy(desc(prayers.created_at));
 
     res.json({
@@ -59,7 +59,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error updating prayer:', error);

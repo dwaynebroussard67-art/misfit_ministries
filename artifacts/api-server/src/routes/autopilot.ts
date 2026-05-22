@@ -4,7 +4,7 @@ import { eq, desc } from 'drizzle-orm';
 import { requireForge } from '../middleware/forge-auth.js';
 import { startAutopilot, stopAutopilot, runAutopilot, getAutopilotStatus } from '../utils/autopilot-scheduler.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 // GET /api/forge/autopilot/status - Get autopilot status
 router.get('/status', requireForge, async (req: Request, res: Response) => {

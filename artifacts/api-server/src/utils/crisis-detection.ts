@@ -8,7 +8,7 @@ const CRISIS_KEYWORDS = [
   'crisis', 'danger', 'threat', 'violent', 'violence',
 ];
 
-export function detectCrisisKeywords(text: string): { isCrisis: boolean; keywords: string[] } {
+export function detectCrisisKeywords(text: string): { crisis_flag: boolean; keywords: string[] } {
   const lowerText = text.toLowerCase();
   const foundKeywords: string[] = [];
 
@@ -19,7 +19,7 @@ export function detectCrisisKeywords(text: string): { isCrisis: boolean; keyword
   }
 
   return {
-    isCrisis: foundKeywords.length > 0,
+    crisis_flag: foundKeywords.length > 0,
     keywords: foundKeywords,
   };
 }

@@ -6,7 +6,7 @@ import { generateNuraResponse, ChatMessage } from '../utils/nura-adapter.js';
 import { detectCrisisKeywords, shouldRefer988 } from '../utils/crisis-detection.js';
 import { requireForge } from '../middleware/forge-auth.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const nuraMessageSchema = z.object({
   message: z.string().min(1),
@@ -24,7 +24,7 @@ router.post('/chat', async (req: Request, res: Response) => {
     const db = await getDb();
 
     // Check for crisis keywords
-    const { isCrisis, keywords } = detectCrisisKeywords(parsed.message);
+    const { crisis_flag, keywords } = detectCrisisKeywords(parsed.message);
     const refer988 = shouldRefer988(parsed.message);
 
     // Update or create session metadata
@@ -35,18 +35,18 @@ router.post('/chat', async (req: Request, res: Response) => {
       await db.update(nuraConversations).set({
         message_count: (existing[0].message_count || 0) + 1,
         last_message: new Date().toISOString(),
-        crisis_flag: isCrisis || existing[0].crisis_flag,
-        crisis_flagged_at: isCrisis ? new Date() : existing[0].crisis_flagged_at,
-        crisis_keywords: isCrisis ? keywords.join(', ') : existing[0].crisis_keywords,
+        crisis_flag: crisis_flag || existing[0].crisis_flag,
+        crisis_flagged_at: crisis_flag ? new Date() : existing[0].crisis_flagged_at,
+        crisis_keywords: crisis_flag ? keywords.join(', ') : existing[0].crisis_keywords,
       }).where(eq(nuraConversations.session_id, parsed.sessionId));
     } else {
       await db.insert(nuraConversations).values({
         session_id: parsed.sessionId,
         message_count: 1,
         last_message: new Date().toISOString(),
-        crisis_flag: isCrisis,
-        crisis_flagged_at: isCrisis ? new Date() : null,
-        crisis_keywords: isCrisis ? keywords.join(', ') : null,
+        crisis_flag: crisis_flag,
+        crisis_flagged_at: crisis_flag ? new Date() : null,
+        crisis_keywords: crisis_flag ? keywords.join(', ') : null,
       });
     }
 
@@ -60,12 +60,12 @@ router.post('/chat', async (req: Request, res: Response) => {
 
     res.json({
       reply,
-      crisis_flag: isCrisis,
+      crisis_flag: crisis_flag,
       refer_988: refer988,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error in Nura chat:', error);

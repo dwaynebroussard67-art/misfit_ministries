@@ -3,7 +3,7 @@ import { getDb, narcanShipments, narcanDistribution } from '@workspace/db';
 import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const createShipmentSchema = z.object({
   source: z.enum(['government', 'donation', 'purchase']),

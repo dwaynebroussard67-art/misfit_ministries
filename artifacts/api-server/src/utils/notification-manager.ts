@@ -16,7 +16,7 @@ interface ForgeNotification {
   title: string;
   message: string;
   data?: any;
-  timestamp: Date;
+  timestamp: Date | string;
   priority: 'high' | 'normal' | 'low';
 }
 

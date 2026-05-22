@@ -1,1 +1,56 @@
-import { useEffect, useState } from 'react';\nimport { PushNotificationManager } from '../utils/push-notifications';\n\nexport function usePushNotifications() {\n  const [isSupported, setIsSupported] = useState(false);\n  const [isSubscribed, setIsSubscribed] = useState(false);\n  const [isLoading, setIsLoading] = useState(true);\n\n  useEffect(() => {\n    const checkSupport = async () => {\n      const supported =\n        'serviceWorker' in navigator &&\n        'PushManager' in window &&\n        'Notification' in window;\n      setIsSupported(supported);\n\n      if (supported) {\n        const subscribed = await PushNotificationManager.isSubscribed();\n        setIsSubscribed(subscribed);\n      }\n\n      setIsLoading(false);\n    };\n\n    checkSupport();\n  }, []);\n\n  const subscribe = async () => {\n    setIsLoading(true);\n    try {\n      const subscription = await PushNotificationManager.subscribe();\n      setIsSubscribed(subscription !== null);\n    } finally {\n      setIsLoading(false);\n    }\n  };\n\n  const unsubscribe = async () => {\n    setIsLoading(true);\n    try {\n      const success = await PushNotificationManager.unsubscribe();\n      setIsSubscribed(!success);\n    } finally {\n      setIsLoading(false);\n    }\n  };\n\n  return {\n    isSupported,\n    isSubscribed,\n    isLoading,\n    subscribe,\n    unsubscribe,\n  };\n}\n
+import { useEffect, useState } from 'react';
+import { PushNotificationManager } from '../utils/push-notifications';
+
+export function usePushNotifications() {
+  const [isSupported, setIsSupported] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkSupport = async () => {
+      const supported =
+        'serviceWorker' in navigator &&
+        'PushManager' in window &&
+        'Notification' in window;
+      setIsSupported(supported);
+
+      if (supported) {
+        const subscribed = await PushNotificationManager.isSubscribed();
+        setIsSubscribed(subscribed);
+      }
+
+      setIsLoading(false);
+    };
+
+    checkSupport();
+  }, []);
+
+  const subscribe = async () => {
+    setIsLoading(true);
+    try {
+      const subscription = await PushNotificationManager.subscribe();
+      setIsSubscribed(subscription !== null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const unsubscribe = async () => {
+    setIsLoading(true);
+    try {
+      const success = await PushNotificationManager.unsubscribe();
+      setIsSubscribed(!success);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    isSupported,
+    isSubscribed,
+    isLoading,
+    subscribe,
+    unsubscribe,
+  };
+}
+

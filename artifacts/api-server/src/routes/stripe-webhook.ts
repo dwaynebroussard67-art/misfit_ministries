@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 import { getDb, orders } from '@workspace/db';
 import { createOrder } from '../utils/printify-client.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-04-10',
 });

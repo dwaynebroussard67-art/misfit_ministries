@@ -3,7 +3,7 @@ import { getDb, responderStories } from '@workspace/db';
 import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const storySchema = z.object({
   responder_id: z.number(),
@@ -28,7 +28,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, message: 'Story submitted' });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error submitting story:', error);

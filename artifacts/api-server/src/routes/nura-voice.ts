@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { generateNuraVoice } from '../utils/elevenlabs-tts.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const voiceRequestSchema = z.object({
   text: z.string().min(1),
@@ -26,7 +26,7 @@ router.post('/voice', async (req: Request, res: Response) => {
     res.send(audio);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error generating voice:', error);

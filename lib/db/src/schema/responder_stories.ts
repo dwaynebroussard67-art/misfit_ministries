@@ -1,5 +1,4 @@
 import { mysqlTable, serial, int, text, timestamp } from 'drizzle-orm/mysql-core';
-import { narcanResponders } from './narcan_responders.js';
 
 export const responderStories = mysqlTable('responder_stories', {
   id: serial('id').primaryKey(),

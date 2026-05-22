@@ -12,16 +12,16 @@ export const narcanDistribution = mysqlTable('narcan_distribution', {
   notes: text('notes'),
   created_at: timestamp('created_at').defaultNow(),
   updated_at: timestamp('updated_at').defaultNow().onUpdateNow(),
-}, (table) => [
-  foreignKey({
+}, (table) => ({
+  fk_shipment: foreignKey({
     columns: [table.shipment_id],
     foreignColumns: [narcanShipments.id],
   }),
-  foreignKey({
+  fk_responder: foreignKey({
     columns: [table.responder_id],
     foreignColumns: [narcanResponders.id],
   }),
-]);
+}));
 
 export type NarcanDistribution = typeof narcanDistribution.$inferSelect;
 export type NewNarcanDistribution = typeof narcanDistribution.$inferInsert;

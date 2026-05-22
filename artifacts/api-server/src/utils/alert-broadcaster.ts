@@ -44,7 +44,7 @@ export interface OdAlertBroadcast {
   distance_miles: number;
   eta_seconds: number;
   location_description?: string;
-  created_at: Date;
+  created_at: Date | string;
 }
 
 export function broadcastOdAlert(alert: OdAlertBroadcast, targetCity?: string): void {

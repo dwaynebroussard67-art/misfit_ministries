@@ -3,7 +3,7 @@ import { getDb, autopilotScheduled } from '@workspace/db';
 import { eq, desc, gte } from 'drizzle-orm';
 import { z } from 'zod';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 const scheduleContentSchema = z.object({
   title: z.string().min(1),
@@ -33,7 +33,7 @@ router.post('/schedule', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, message: 'Content scheduled for approval' });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error scheduling content:', error);
@@ -86,7 +86,7 @@ router.patch('/:id/approve', async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      res.status(400).json({ error: error.flatten().fieldErrors });
       return;
     }
     console.error('Error approving content:', error);
