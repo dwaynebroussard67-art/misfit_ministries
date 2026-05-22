@@ -27,6 +27,7 @@ import twoFactorRouter from './two-factor.js';
 import auditLogsRouter from './audit-logs.js';
 import heatmapRouter from './heatmap.js';
 import videoTestimonialsRouter from './video-testimonials.js';
+import forgeCreatorRouter from './forge-creator.js';
 
 const router = Router();
 
@@ -59,5 +60,6 @@ router.use('/2fa', twoFactorRouter);
 router.use('/audit-logs', auditLogsRouter);
 router.use('/heatmap', heatmapRouter);
 router.use('/video-testimonials', videoTestimonialsRouter);
+router.use('/forge-creator', forgeCreatorRouter);
 
 export default router;
