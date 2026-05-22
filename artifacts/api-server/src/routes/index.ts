@@ -5,12 +5,17 @@ import resourcesRouter from './resources.js';
 import contentRouter from './content.js';
 import siteCopyRouter from './site-copy.js';
 import nuraRouter from './nura.js';
+import nuraVoiceRouter from './nura-voice.js';
 import forgeRouter from './forge.js';
 import stripeRouter from './stripe.js';
 import statsRouter from './stats.js';
 import crisisRouter from './crisis.js';
 import autopilotRouter from './autopilot.js';
 import forgeGenerateRouter from './forge-generate.js';
+import narcanRespondersRouter from './narcan-responders.js';
+import narcanAlertsRouter from './narcan-alerts.js';
+import narcanSubscribeRouter from './narcan-subscribe.js';
+import responderStoriesRouter from './responder-stories.js';
 
 const router = Router();
 
@@ -21,11 +26,16 @@ router.use('/resources', resourcesRouter);
 router.use('/content', contentRouter);
 router.use('/site-copy', siteCopyRouter);
 router.use('/nura', nuraRouter);
+router.use('/nura', nuraVoiceRouter);
 router.use('/forge', forgeRouter);
 router.use('/forge/autopilot', autopilotRouter);
 router.use('/forge/media', forgeGenerateRouter);
 router.use('/stripe', stripeRouter);
 router.use('/stats', statsRouter);
 router.use('/crisis', crisisRouter);
+router.use('/narcan', narcanRespondersRouter);
+router.use('/narcan', narcanAlertsRouter);
+router.use('/narcan', narcanSubscribeRouter);
+router.use('/stories', responderStoriesRouter);
 
 export default router;
