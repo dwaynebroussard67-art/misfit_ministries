@@ -18,6 +18,9 @@ import narcanSubscribeRouter from './narcan-subscribe.js';
 import responderStoriesRouter from './responder-stories.js';
 import storeRouter from './store.js';
 import narcanSupplyChainRouter from './narcan-supply-chain.js';
+import stripeWebhookRouter from './stripe-webhook.js';
+import autopilotSchedulerRouter from './autopilot-scheduler.js';
+import notificationsRouter from './notifications.js';
 
 const router = Router();
 
@@ -41,5 +44,8 @@ router.use('/narcan', narcanSubscribeRouter);
 router.use('/stories', responderStoriesRouter);
 router.use('/store', storeRouter);
 router.use('/narcan/supply-chain', narcanSupplyChainRouter);
+router.use('/stripe', stripeWebhookRouter);
+router.use('/autopilot', autopilotSchedulerRouter);
+router.use('/notifications', notificationsRouter);
 
 export default router;
