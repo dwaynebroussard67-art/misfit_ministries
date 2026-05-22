@@ -25,6 +25,8 @@ import emailNotificationsRouter from './email-notifications.js';
 import analyticsRouter from './analytics.js';
 import twoFactorRouter from './two-factor.js';
 import auditLogsRouter from './audit-logs.js';
+import heatmapRouter from './heatmap.js';
+import videoTestimonialsRouter from './video-testimonials.js';
 
 const router = Router();
 
@@ -55,5 +57,7 @@ router.use('/email', emailNotificationsRouter);
 router.use('/analytics', analyticsRouter);
 router.use('/2fa', twoFactorRouter);
 router.use('/audit-logs', auditLogsRouter);
+router.use('/heatmap', heatmapRouter);
+router.use('/video-testimonials', videoTestimonialsRouter);
 
 export default router;
