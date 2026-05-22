@@ -1,15 +1,10 @@
-import { defineConfig } from "drizzle-kit";
-
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
-  throw new Error("DATABASE_URL is required to run drizzle commands");
-}
+import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
-  schema: "./drizzle/schema.ts",
-  out: "./drizzle",
-  dialect: "mysql",
+  dialect: 'mysql2',
+  schema: './lib/db/src/schema',
+  out: './drizzle',
   dbCredentials: {
-    url: connectionString,
+    url: process.env.DATABASE_URL || 'mysql://root:password@localhost:3306/misfit_ministries',
   },
 });

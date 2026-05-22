@@ -1,0 +1,10 @@
+packages:
+  - 'artifacts/api-server'
+  - 'artifacts/misfit'
+  - 'lib/db'
+  - 'lib/api-spec'
+  - 'lib/api-client-react'
+  - 'scripts'
+allowBuilds:
+  es5-ext: set this to true or false
+  esbuild: set this to true or false
