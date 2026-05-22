@@ -82,8 +82,8 @@ export async function verifyBackupCode(userId: string, code: string): Promise<bo
 }
 
 export async function sendOTPViaSMS(phoneNumber: string, code: string): Promise<void> {
-  // Implement SMS sending with Twilio or similar
-  console.log(`[SMS] Sending OTP ${code} to ${phoneNumber}`);
+  const { sendOTPSMS } = await import('./twilio-sms.js');
+  await sendOTPSMS(phoneNumber, code);
 }
 
 export async function sendOTPViaEmail(email: string, code: string): Promise<void> {

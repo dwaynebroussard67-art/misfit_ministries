@@ -24,6 +24,7 @@ import notificationsRouter from './notifications.js';
 import emailNotificationsRouter from './email-notifications.js';
 import analyticsRouter from './analytics.js';
 import twoFactorRouter from './two-factor.js';
+import auditLogsRouter from './audit-logs.js';
 
 const router = Router();
 
@@ -53,5 +54,6 @@ router.use('/notifications', notificationsRouter);
 router.use('/email', emailNotificationsRouter);
 router.use('/analytics', analyticsRouter);
 router.use('/2fa', twoFactorRouter);
+router.use('/audit-logs', auditLogsRouter);
 
 export default router;

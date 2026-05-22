@@ -16,3 +16,4 @@ export * from './narcan_distribution.js';
 export * from './orders.js';
 export * from './autopilot_scheduled.js';
 export * from './two_factor_auth.js';
+export * from './audit_logs.js';
