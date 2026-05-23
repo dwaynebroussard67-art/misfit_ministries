@@ -60,6 +60,10 @@ router.post('/', async (req: Request, res: Response) => {
 router.patch('/:id', requireForge, async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'Invalid testimony ID' });
+      return;
+    }
     const parsed = updateTestimonySchema.parse(req.body);
 
     const db = await getDb();
@@ -80,6 +84,10 @@ router.patch('/:id', requireForge, async (req: Request, res: Response) => {
 router.delete('/:id', requireForge, async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'Invalid testimony ID' });
+      return;
+    }
     const db = await getDb();
 
     await db.delete(testimonies).where(eq(testimonies.id, id));

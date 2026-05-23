@@ -13,8 +13,20 @@ const forgeAuthSchema = z.object({
 router.post('/auth', async (req: Request, res: Response) => {
   try {
     const parsed = forgeAuthSchema.parse(req.body);
-    const expectedPassphrase = process.env.FORGE_PASSPHRASE || '988';
-    const secret = process.env.JWT_SECRET || 'default-secret';
+    const expectedPassphrase = process.env.FORGE_PASSPHRASE;
+    const secret = process.env.JWT_SECRET;
+    
+    if (!expectedPassphrase) {
+      console.error('ERROR: FORGE_PASSPHRASE environment variable is not set');
+      res.status(500).json({ error: 'Server configuration error' });
+      return;
+    }
+    
+    if (!secret) {
+      console.error('ERROR: JWT_SECRET environment variable is not set');
+      res.status(500).json({ error: 'Server configuration error' });
+      return;
+    }
 
     if (parsed.passphrase !== expectedPassphrase) {
       res.status(401).json({ error: 'Invalid passphrase' });

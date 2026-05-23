@@ -68,6 +68,10 @@ router.post('/', async (req: Request, res: Response) => {
 router.patch('/:id/status', requireForge, async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'Invalid prayer ID' });
+      return;
+    }
     const { status } = req.body;
 
     if (!['pending', 'answered', 'archived'].includes(status)) {

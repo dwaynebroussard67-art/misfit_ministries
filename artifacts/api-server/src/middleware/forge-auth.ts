@@ -42,8 +42,13 @@ export function requireForge(req: Request, res: Response, next: NextFunction): v
   }
 
   try {
-    const passphrase = process.env.FORGE_PASSPHRASE || '988';
-    const secret = process.env.JWT_SECRET || 'default-secret';
+    const passphrase = process.env.FORGE_PASSPHRASE;
+    const secret = process.env.JWT_SECRET;
+    
+    if (!passphrase || !secret) {
+      res.status(500).json({ error: 'Server configuration error' });
+      return;
+    }
 
     if (verifyForgeToken(token, passphrase, secret)) {
       (req as any).isForge = true;
