@@ -11,8 +11,8 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@workspace/db": "workspace:*",
     "@sendgrid/mail": "^8.1.0",
+    "@workspace/db": "workspace:*",
     "axios": "^1.16.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -20,6 +20,7 @@
     "express": "^5.0.0",
     "express-rate-limit": "^7.1.0",
     "groq-sdk": "^0.3.3",
+    "mysql2": "^3.22.3",
     "pino": "^8.17.0",
     "pino-http": "^8.6.0",
     "stripe": "^14.25.0",

@@ -1,179 +1,112 @@
 import { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { ShoppingBag, Heart, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 
+const PRODUCTS = [
+  { id: 'price_prayer_support', name: 'Prayer Support', price: '$5.00', desc: 'Support our prayer ministry' },
+  { id: 'price_monthly_support', name: 'Monthly Supporter', price: '$29.99/mo', desc: 'Monthly support' },
+  { id: 'price_annual_support', name: 'Annual Supporter', price: '$299.99/yr', desc: 'Annual support' },
+];
+
+const MERCHANDISE = [
+  { id: 'price_misfit_hoodie', name: 'Misfit Hoodie', price: '$39.99' },
+  { id: 'price_misfit_shirt', name: 'Misfit T-Shirt', price: '$19.99' },
+  { id: 'price_misfit_hat', name: 'Misfit Hat', price: '$14.99' },
+];
+
 export default function Store() {
-  const [cart, setCart] = useState<Array<{ product_id: string; variant_id: string; quantity: number }>>([]);
-  const [showCheckout, setShowCheckout] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const { data: products } = useQuery({
-    queryKey: ['store-products'],
-    queryFn: async () => {
-      const res = await axios.get('/api/store/products');
-      return res.data;
-    },
-  });
-
-  const checkoutMutation = useMutation({
-    mutationFn: async (customerData: any) => {
-      const res = await axios.post('/api/store/checkout', {
-        items: cart,
-        customer: customerData,
+  const handleCheckout = async (priceId: string) => {
+    try {
+      setLoading(true);
+      setError('');
+      const response = await axios.post('/api/stripe/checkout', {
+        items: [{ priceId, quantity: 1 }],
       });
-      return res.data;
-    },
-  });
-
-  const addToCart = (productId: string, variantId: string) => {
-    setCart(prev => {
-      const existing = prev.find(item => item.product_id === productId && item.variant_id === variantId);
-      if (existing) {
-        return prev.map(item =>
-          item.product_id === productId && item.variant_id === variantId
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
+      if (response.data.url) {
+        window.open(response.data.url, '_blank');
       }
-      return [...prev, { product_id: productId, variant_id: variantId, quantity: 1 }];
-    });
+    } catch (err) {
+      setError('Failed to start checkout. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-dark p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-5xl font-bold text-gold mb-4">Misfit Ministries Store</h1>
-          <p className="text-2xl text-text-secondary">
-            Wear your faith. Support the mission. Every purchase funds Narcan distribution.
-          </p>
+    <div className="min-h-screen bg-dark">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-dark-secondary to-dark">
+        <div className="max-w-6xl mx-auto text-center">
+          <h1 className="text-5xl font-bold text-gold mb-8 font-serif">Misfit Store</h1>
+          <p className="text-xl text-text-secondary">Support the mission. Get exclusive gear.</p>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Products */}
-          <div className="lg:col-span-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {products?.map((product: any) => (
-                <div key={product.id} className="bg-surface p-6 rounded-lg">
-                  {product.images?.[0] && (
-                    <img
-                      src={product.images[0].src}
-                      alt={product.title}
-                      className="w-full h-48 object-cover rounded-lg mb-4"
-                    />
-                  )}
-                  <h3 className="text-xl font-bold text-gold mb-2">{product.title}</h3>
-                  <p className="text-text-secondary mb-4 text-sm">{product.description}</p>
+      {error && (
+        <div className="bg-red/20 border border-red text-red p-4 mx-4 my-4 rounded">
+          <p>{error}</p>
+        </div>
+      )}
 
-                  {product.variants?.map((variant: any) => (
-                    <div key={variant.id} className="flex justify-between items-center mb-3">
-                      <div>
-                        <p className="font-bold text-text-primary">{variant.title}</p>
-                        <p className="text-gold font-bold">${(variant.price / 100).toFixed(2)}</p>
-                      </div>
-                      <button
-                        onClick={() => addToCart(product.id, variant.id)}
-                        className="bg-gold text-dark px-4 py-2 rounded font-bold hover:bg-yellow-600 transition"
-                      >
-                        Add
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ))}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-dark">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold text-gold mb-8 font-serif">Support the Mission</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            {PRODUCTS.map(product => (
+              <div key={product.id} className="bg-dark-secondary rounded-lg p-6 border border-gold/20 hover:border-gold transition-colors">
+                <Heart className="text-gold mb-3" size={32} />
+                <h3 className="text-xl font-bold text-gold mb-2">{product.name}</h3>
+                <p className="text-text-secondary mb-2 text-sm">{product.desc}</p>
+                <p className="text-2xl font-bold text-gold mb-4">{product.price}</p>
+                <button
+                  onClick={() => handleCheckout(product.id)}
+                  disabled={loading}
+                  className="w-full bg-gold text-dark px-4 py-2 rounded font-bold hover:bg-gold/90 transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'Processing...' : 'Donate'}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <h2 className="text-3xl font-bold text-gold mb-8 font-serif">Official Merchandise</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {MERCHANDISE.map(item => (
+              <div key={item.id} className="bg-dark-secondary rounded-lg p-6 border border-gold/20 hover:border-gold transition-colors">
+                <ShoppingBag className="text-gold mb-3" size={32} />
+                <h3 className="text-xl font-bold text-gold mb-2">{item.name}</h3>
+                <p className="text-2xl font-bold text-gold mb-4">{item.price}</p>
+                <button
+                  onClick={() => handleCheckout(item.id)}
+                  disabled={loading}
+                  className="w-full bg-gold text-dark px-4 py-2 rounded font-bold hover:bg-gold/90 transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'Processing...' : 'Buy Now'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-dark-secondary">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-dark rounded-lg p-8 border border-gold/20">
+            <div className="flex items-start gap-3 mb-4">
+              <AlertCircle className="text-gold mt-1" size={24} />
+              <div>
+                <h3 className="text-xl font-bold text-gold mb-2">100% of Proceeds Support the Mission</h3>
+                <p className="text-text-secondary">
+                  Every purchase directly supports our prayer ministry, crisis resources, and community outreach. Thank you for standing with us.
+                </p>
+              </div>
             </div>
           </div>
-
-          {/* Cart */}
-          <div className="bg-surface p-6 rounded-lg h-fit sticky top-8">
-            <h2 className="text-2xl font-bold text-gold mb-4">Cart ({cart.length})</h2>
-
-            {cart.length === 0 ? (
-              <p className="text-text-secondary">Your cart is empty</p>
-            ) : (
-              <>
-                <div className="space-y-3 mb-6 max-h-64 overflow-y-auto">
-                  {cart.map((item, i) => (
-                    <div key={i} className="flex justify-between items-center text-sm">
-                      <p className="text-text-secondary">
-                        {item.product_id} x {item.quantity}
-                      </p>
-                      <button
-                        onClick={() => setCart(cart.filter((_, idx) => idx !== i))}
-                        className="text-red hover:text-red-700 font-bold"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                {!showCheckout ? (
-                  <button
-                    onClick={() => setShowCheckout(true)}
-                    className="w-full bg-gold text-dark px-4 py-3 rounded font-bold hover:bg-yellow-600 transition"
-                  >
-                    Proceed to Checkout
-                  </button>
-                ) : (
-                  <CheckoutForm onSubmit={(data) => checkoutMutation.mutate(data)} />
-                )}
-              </>
-            )}
-
-            <p className="text-text-secondary text-xs mt-6">
-              100% of proceeds fund Narcan distribution and Misfit First Responders training.
-            </p>
-          </div>
         </div>
-      </div>
+      </section>
     </div>
-  );
-}
-
-function CheckoutForm({ onSubmit }: { onSubmit: (data: any) => void }) {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <input
-        type="text"
-        placeholder="Name"
-        required
-        value={formData.name}
-        onChange={e => setFormData({ ...formData, name: e.target.value })}
-        className="w-full bg-dark-border text-text-primary px-3 py-2 rounded text-sm"
-      />
-      <input
-        type="email"
-        placeholder="Email"
-        required
-        value={formData.email}
-        onChange={e => setFormData({ ...formData, email: e.target.value })}
-        className="w-full bg-dark-border text-text-primary px-3 py-2 rounded text-sm"
-      />
-      <input
-        type="tel"
-        placeholder="Phone (optional)"
-        value={formData.phone}
-        onChange={e => setFormData({ ...formData, phone: e.target.value })}
-        className="w-full bg-dark-border text-text-primary px-3 py-2 rounded text-sm"
-      />
-      <button
-        type="submit"
-        className="w-full bg-gold text-dark px-4 py-2 rounded font-bold hover:bg-yellow-600 transition text-sm"
-      >
-        Pay with Stripe
-      </button>
-    </form>
   );
 }

@@ -1,83 +1,78 @@
 import { Router, Request, Response } from 'express';
-import Stripe from 'stripe';
-import { z } from 'zod';
-import { requireForge } from '../middleware/forge-auth.js';
+import { createCheckoutSession, verifyWebhookSignature, handleCheckoutSessionCompleted, handlePaymentIntentSucceeded, handlePaymentIntentFailed, getUserOrders } from '../services/stripe-service';
+import { PRODUCTS, MERCHANDISE } from '../config/products';
+import { forgeAuth } from '../middleware/forge-auth';
 
-const router: ReturnType<typeof Router> = Router();
+const router = Router();
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16',
-});
-
-const checkoutSchema = z.object({
-  items: z.array(z.object({
-    price_id: z.string(),
-    quantity: z.number().default(1),
-  })),
-  success_url: z.string(),
-  cancel_url: z.string(),
-});
-
-// POST /api/stripe/checkout - Create checkout session
+// Create checkout session
 router.post('/checkout', async (req: Request, res: Response) => {
   try {
-    const parsed = checkoutSchema.parse(req.body);
+    const { items } = req.body;
+    const user = (req as any).user;
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: parsed.items.map(item => ({
-        price: item.price_id,
-        quantity: item.quantity,
-      })),
-      mode: 'payment',
-      success_url: parsed.success_url,
-      cancel_url: parsed.cancel_url,
-    });
-
-    res.json({ session_id: session.id, url: session.url });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.flatten().fieldErrors });
-      return;
+    if (!user || !user.id) {
+      return res.status(401).json({ error: 'Unauthorized' });
     }
-    console.error('Error creating checkout session:', error);
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: 'Invalid items' });
+    }
+
+    const session = await createCheckoutSession(
+      user.id,
+      items,
+      user.email || 'customer@example.com',
+      user.name || 'Customer',
+      req.headers.origin || 'http://localhost:5173',
+    );
+
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error('Checkout error:', error);
     res.status(500).json({ error: 'Failed to create checkout session' });
   }
 });
 
-// GET /api/stripe/products - List products
-router.get('/products', async (req: Request, res: Response) => {
+// Get user orders
+router.get('/orders', async (req: Request, res: Response) => {
   try {
-    const products = await stripe.products.list({
-      limit: 100,
-      active: true,
-    });
+    const user = (req as any).user;
 
-    res.json(products.data);
+    if (!user || !user.id) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const orders = await getUserOrders(user.id);
+    res.json(orders);
   } catch (error) {
-    console.error('Error fetching products:', error);
-    res.status(500).json({ error: 'Failed to fetch products' });
+    console.error('Orders fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch orders' });
   }
 });
 
-// POST /api/stripe/webhook - Handle webhook events
+// Webhook endpoint
 router.post('/webhook', async (req: Request, res: Response) => {
   const sig = req.headers['stripe-signature'] as string;
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
   try {
-    const event = stripe.webhooks.constructEvent(
-      req.body,
-      sig,
-      webhookSecret
-    );
+    const event = verifyWebhookSignature(JSON.stringify(req.body), sig);
+
+    // Handle test events
+    if (event.id.startsWith('evt_test_')) {
+      console.log('[Webhook] Test event detected:', event.type);
+      return res.json({ verified: true });
+    }
 
     switch (event.type) {
+      case 'checkout.session.completed':
+        await handleCheckoutSessionCompleted(event);
+        break;
       case 'payment_intent.succeeded':
-        console.log('Payment succeeded:', event.data.object);
+        await handlePaymentIntentSucceeded(event);
         break;
       case 'payment_intent.payment_failed':
-        console.log('Payment failed:', event.data.object);
+        await handlePaymentIntentFailed(event);
         break;
       default:
         console.log(`Unhandled event type: ${event.type}`);
@@ -86,8 +81,13 @@ router.post('/webhook', async (req: Request, res: Response) => {
     res.json({ received: true });
   } catch (error) {
     console.error('Webhook error:', error);
-    res.status(400).json({ error: 'Webhook error' });
+    res.status(400).json({ error: 'Webhook verification failed' });
   }
+});
+
+// Get products (public)
+router.get('/products', (req: Request, res: Response) => {
+  res.json({ products: PRODUCTS, merchandise: MERCHANDISE });
 });
 
 export default router;
