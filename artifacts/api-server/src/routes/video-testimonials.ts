@@ -3,6 +3,7 @@ import { getDb, videoTestimonials, videoUploadSessions } from '@workspace/db';
 import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import crypto from 'crypto';
+import { requireForge } from '../middleware/forge-auth.js';
 
 const router: ReturnType<typeof Router> = Router();
 
@@ -145,7 +146,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 // POST /api/video-testimonials/:id/approve - Approve testimonial (ADMIN)
-router.post('/:id/approve', async (req: Request, res: Response) => {
+router.post('/:id/approve', requireForge, async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       adminId: z.string(),
@@ -178,7 +179,7 @@ router.post('/:id/approve', async (req: Request, res: Response) => {
 });
 
 // POST /api/video-testimonials/:id/reject - Reject testimonial (ADMIN)
-router.post('/:id/reject', async (req: Request, res: Response) => {
+router.post('/:id/reject', requireForge, async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       adminId: z.string(),
@@ -210,7 +211,7 @@ router.post('/:id/reject', async (req: Request, res: Response) => {
 });
 
 // GET /api/video-testimonials/pending - Get pending testimonials (ADMIN)
-router.get('/pending', async (req: Request, res: Response) => {
+router.get('/pending', requireForge, async (req: Request, res: Response) => {
   try {
     const db = await getDb();
     const pending = await db.select().from(videoTestimonials)

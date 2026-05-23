@@ -4,8 +4,22 @@ import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { detectCrisisKeywords } from '../utils/crisis-detection.js';
 import { requireForge } from '../middleware/forge-auth.js';
+import { sendCrisisAlert } from '../utils/email-service.js';
 
 const router: ReturnType<typeof Router> = Router();
+
+const PRAYER_CATEGORIES = [
+  'family',
+  'health',
+  'finances',
+  'spiritual-growth',
+  'relationships',
+  'work',
+  'addiction-recovery',
+  'housing',
+  'legal',
+  'other',
+];
 
 const createPrayerSchema = z.object({
   name: z.string().optional(),
@@ -22,8 +36,12 @@ router.get('/', async (req: Request, res: Response) => {
     const status = req.query.status as string | undefined;
 
     let query: any = db.select().from(prayers);
-    if (category) query = query.where(eq(prayers.category, category));
-    if (status) query = query.where(eq(prayers.status, status));
+    if (category && PRAYER_CATEGORIES.includes(category)) {
+      query = query.where(eq(prayers.category, category));
+    }
+    if (status && ['pending', 'answered', 'archived'].includes(status)) {
+      query = query.where(eq(prayers.status, status));
+    }
 
     const result = await query.orderBy(desc(prayers.created_at));
     res.json(result);
@@ -33,21 +51,42 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/prayers/categories - Get available prayer categories
+router.get('/categories', (req: Request, res: Response) => {
+  res.json({ categories: PRAYER_CATEGORIES });
+});
+
 // POST /api/prayers - Submit a prayer
 router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createPrayerSchema.parse(req.body);
+    
+    if (parsed.category && !PRAYER_CATEGORIES.includes(parsed.category)) {
+      res.status(400).json({ error: `Invalid category. Must be one of: ${PRAYER_CATEGORIES.join(', ')}` });
+      return;
+    }
+    
     const { crisis_flag, keywords } = detectCrisisKeywords(parsed.request);
 
     const db = await getDb();
     const result = await db.insert(prayers).values({
       name: parsed.is_anonymous ? null : parsed.name,
       request: parsed.request,
-      category: parsed.category,
+      category: parsed.category || 'other',
       is_anonymous: parsed.is_anonymous,
       crisis_flag: crisis_flag,
       flagged_keywords: crisis_flag ? keywords.join(', ') : null,
     });
+
+    if (crisis_flag) {
+      const adminEmail = process.env.ADMIN_EMAIL || 'admin@misfitministries.com';
+      const prayerName = parsed.name || 'Anonymous';
+      try {
+        await sendCrisisAlert(adminEmail, prayerName, keywords);
+      } catch (emailError) {
+        console.error('Failed to send crisis alert email:', emailError);
+      }
+    }
 
     res.status(201).json({
       success: true,
