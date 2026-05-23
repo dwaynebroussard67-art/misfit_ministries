@@ -1,15 +1,17 @@
 import { Router, Request, Response } from 'express';
+import type { Router as ExpressRouter } from 'express';
 import { db } from '../db';
 
-const router = Router();
+const router: ExpressRouter = Router();
 
 // Schedule content publication
-router.post('/schedule', async (req: Request, res: Response) => {
+router.post('/schedule', async (req: Request, res: Response): Promise<void> => {
   try {
     const { content, publishAt } = req.body;
     
     if (!content || !publishAt) {
-      return res.status(400).json({ error: 'Missing content or publishAt' });
+      res.status(400).json({ error: 'Missing content or publishAt' });
+      return;
     }
 
     // Store scheduled content

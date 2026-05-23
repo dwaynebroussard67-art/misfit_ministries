@@ -16,16 +16,16 @@ export function ResponsiveLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className=\"min-h-screen flex flex-col bg-dark\">
+    <div className="min-h-screen flex flex-col bg-dark">
       {/* Header */}
       {header && (
-        <header className=\"bg-surface border-b border-dark-border sticky top-0 z-30\">
-          <div className=\"container mx-auto px-4 py-4 flex justify-between items-center\">
+        <header className="bg-surface border-b border-dark-border sticky top-0 z-30">
+          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             {header}
             {sidebar && (
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className=\"md:hidden text-gold font-bold\"
+                className="md:hidden text-gold font-bold"
               >
                 ☰
               </button>
@@ -35,14 +35,14 @@ export function ResponsiveLayout({
       )}
 
       {/* Main Content */}
-      <div className=\"flex flex-1 overflow-hidden\">
+      <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         {sidebar && (
           <>
             {/* Mobile Sidebar Overlay */}
             {sidebarOpen && (
               <div
-                className=\"fixed inset-0 bg-black/50 z-20 md:hidden\"
+                className="fixed inset-0 bg-black/50 z-20 md:hidden"
                 onClick={() => setSidebarOpen(false)}
               />
             )}
@@ -55,7 +55,7 @@ export function ResponsiveLayout({
                 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
               `}
             >
-              <div className=\"p-4 md:p-6 overflow-y-auto h-full\">
+              <div className="p-4 md:p-6 overflow-y-auto h-full">
                 {sidebar}
               </div>
             </aside>
@@ -63,8 +63,8 @@ export function ResponsiveLayout({
         )}
 
         {/* Main Content Area */}
-        <main className=\"flex-1 overflow-y-auto\">
-          <div className=\"container mx-auto px-4 py-8 md:py-12\">
+        <main className="flex-1 overflow-y-auto">
+          <div className="container mx-auto px-4 py-8 md:py-12">
             {children}
           </div>
         </main>
@@ -72,8 +72,8 @@ export function ResponsiveLayout({
 
       {/* Footer */}
       {footer && (
-        <footer className=\"bg-surface border-t border-dark-border mt-12\">
-          <div className=\"container mx-auto px-4 py-8 md:py-12\">
+        <footer className="bg-surface border-t border-dark-border mt-12">
+          <div className="container mx-auto px-4 py-8 md:py-12">
             {footer}
           </div>
         </footer>

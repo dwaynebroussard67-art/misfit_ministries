@@ -1,8 +1,8 @@
 const CRISIS_KEYWORDS = [
   'suicide', 'suicidal', 'kill myself', 'end my life', 'want to die',
-  'overdose', 'od', 'heroin', 'fentanyl', 'opioid', 'meth', 'crystal',
+  'overdose', 'od', 'heroin', 'fentanyl', 'opioid', 'meth', 'crystal', 'too many pills',
   'cutting', 'self harm', 'self-harm', 'hurt myself',
-  'abuse', 'beaten', 'assault', 'rape', 'molested',
+  'abusing', 'abuse', 'beaten', 'assault', 'rape', 'molested',
   'hopeless', 'worthless', 'no point', 'give up',
   'emergency', 'urgent', 'immediate help', 'right now',
   'crisis', 'danger', 'threat', 'violent', 'violence',
@@ -27,7 +27,7 @@ export function detectCrisisKeywords(text: string): { crisis_flag: boolean; keyw
 export function shouldRefer988(text: string): boolean {
   const crisisIndicators = [
     'suicide', 'suicidal', 'kill myself', 'end my life',
-    'overdose', 'od', 'immediate danger', 'emergency',
+    'overdose', 'od', 'immediate danger', 'emergency', 'too many pills',
   ];
 
   const lowerText = text.toLowerCase();

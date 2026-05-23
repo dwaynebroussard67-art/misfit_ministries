@@ -108,34 +108,34 @@ export default function APIDocumentation() {
 
   return (
     <ResponsiveLayout>
-      <div className=\"space-y-6\">
+      <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className=\"text-3xl md:text-5xl font-bold text-gold mb-2\">API Documentation</h1>
-          <p className=\"text-text-secondary text-sm md:text-base\">
+          <h1 className="text-3xl md:text-5xl font-bold text-gold mb-2">API Documentation</h1>
+          <p className="text-text-secondary text-sm md:text-base">
             Build with Misfit Ministries. Integrate prayer data, Nura AI, and responder network.
           </p>
         </div>
 
         {/* Quick Start */}
         <ResponsiveCard>
-          <h2 className=\"font-bold text-gold mb-3\">🚀 Quick Start</h2>
-          <div className=\"space-y-3 text-sm\">
+          <h2 className="font-bold text-gold mb-3">🚀 Quick Start</h2>
+          <div className="space-y-3 text-sm">
             <div>
-              <p className=\"text-text-secondary mb-1\">Base URL:</p>
-              <code className=\"bg-dark-border p-2 rounded block text-gold font-mono\">
+              <p className="text-text-secondary mb-1">Base URL:</p>
+              <code className="bg-dark-border p-2 rounded block text-gold font-mono">
                 https://api.misfitministries.com
               </code>
             </div>
             <div>
-              <p className=\"text-text-secondary mb-1\">Authentication:</p>
-              <code className=\"bg-dark-border p-2 rounded block text-gold font-mono\">
+              <p className="text-text-secondary mb-1">Authentication:</p>
+              <code className="bg-dark-border p-2 rounded block text-gold font-mono">
                 Authorization: Bearer YOUR_API_KEY
               </code>
             </div>
             <div>
-              <p className=\"text-text-secondary mb-1\">Content Type:</p>
-              <code className=\"bg-dark-border p-2 rounded block text-gold font-mono\">
+              <p className="text-text-secondary mb-1">Content Type:</p>
+              <code className="bg-dark-border p-2 rounded block text-gold font-mono">
                 Content-Type: application/json
               </code>
             </div>
@@ -144,18 +144,18 @@ export default function APIDocumentation() {
 
         {/* Endpoints */}
         <div>
-          <h2 className=\"text-2xl font-bold text-gold mb-4\">📚 Endpoints</h2>
-          <div className=\"space-y-3\">
+          <h2 className="text-2xl font-bold text-gold mb-4">📚 Endpoints</h2>
+          <div className="space-y-3">
             {endpoints.map((endpoint, i) => (
               <div
                 key={i}
-                className=\"bg-surface border border-dark-border rounded cursor-pointer hover:border-gold transition\"
+                className="bg-surface border border-dark-border rounded cursor-pointer hover:border-gold transition"
                 onClick={() =>
                   setSelectedEndpoint(selectedEndpoint === endpoint.path ? null : endpoint.path)
                 }
               >
-                <div className=\"p-4 flex items-center justify-between\">
-                  <div className=\"flex items-center gap-3\">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
                     <span
                       className={`px-3 py-1 rounded font-bold text-sm ${
                         endpoint.method === 'GET'
@@ -168,35 +168,35 @@ export default function APIDocumentation() {
                       {endpoint.method}
                     </span>
                     <div>
-                      <p className=\"font-mono text-gold text-sm md:text-base\">{endpoint.path}</p>
-                      <p className=\"text-text-secondary text-xs md:text-sm\">
+                      <p className="font-mono text-gold text-sm md:text-base">{endpoint.path}</p>
+                      <p className="text-text-secondary text-xs md:text-sm">
                         {endpoint.description}
                       </p>
                     </div>
                   </div>
-                  <span className=\"text-gold text-xl\">
+                  <span className="text-gold text-xl">
                     {selectedEndpoint === endpoint.path ? '▼' : '▶'}
                   </span>
                 </div>
 
                 {/* Expanded Details */}
                 {selectedEndpoint === endpoint.path && (
-                  <div className=\"border-t border-dark-border p-4 space-y-4\">
+                  <div className="border-t border-dark-border p-4 space-y-4">
                     {/* Parameters */}
                     {endpoint.params.length > 0 && (
                       <div>
-                        <h4 className=\"font-bold text-gold mb-2\">Parameters:</h4>
-                        <div className=\"space-y-2 text-sm\">
+                        <h4 className="font-bold text-gold mb-2">Parameters:</h4>
+                        <div className="space-y-2 text-sm">
                           {endpoint.params.map((param, j) => (
-                            <div key={j} className=\"bg-dark-border p-2 rounded\">
-                              <div className=\"flex items-center gap-2 mb-1\">
-                                <code className=\"text-blue-400 font-mono\">{param.name}</code>
-                                <span className=\"text-text-secondary text-xs\">{param.type}</span>
+                            <div key={j} className="bg-dark-border p-2 rounded">
+                              <div className="flex items-center gap-2 mb-1">
+                                <code className="text-blue-400 font-mono">{param.name}</code>
+                                <span className="text-text-secondary text-xs">{param.type}</span>
                                 {param.required && (
-                                  <span className=\"text-red text-xs font-bold\">required</span>
+                                  <span className="text-red text-xs font-bold">required</span>
                                 )}
                               </div>
-                              <p className=\"text-text-secondary text-xs\">{param.desc}</p>
+                              <p className="text-text-secondary text-xs">{param.desc}</p>
                             </div>
                           ))}
                         </div>
@@ -205,17 +205,17 @@ export default function APIDocumentation() {
 
                     {/* Example */}
                     <div>
-                      <h4 className=\"font-bold text-gold mb-2\">Example:</h4>
-                      <div className=\"space-y-2 text-xs\">
+                      <h4 className="font-bold text-gold mb-2">Example:</h4>
+                      <div className="space-y-2 text-xs">
                         <div>
-                          <p className=\"text-text-secondary mb-1\">Request:</p>
-                          <code className=\"bg-dark-border p-2 rounded block text-green-400 font-mono overflow-x-auto\">
+                          <p className="text-text-secondary mb-1">Request:</p>
+                          <code className="bg-dark-border p-2 rounded block text-green-400 font-mono overflow-x-auto">
                             {JSON.stringify(endpoint.example.request, null, 2)}
                           </code>
                         </div>
                         <div>
-                          <p className=\"text-text-secondary mb-1\">Response:</p>
-                          <code className=\"bg-dark-border p-2 rounded block text-blue-400 font-mono overflow-x-auto\">
+                          <p className="text-text-secondary mb-1">Response:</p>
+                          <code className="bg-dark-border p-2 rounded block text-blue-400 font-mono overflow-x-auto">
                             {JSON.stringify(endpoint.example.response, null, 2)}
                           </code>
                         </div>
@@ -230,10 +230,10 @@ export default function APIDocumentation() {
 
         {/* SDKs */}
         <ResponsiveCard>
-          <h2 className=\"font-bold text-gold mb-3\">📦 SDKs & Libraries</h2>
-          <div className=\"space-y-2 text-sm\">
-            <p className=\"text-text-secondary\">Official SDKs coming soon:</p>
-            <ul className=\"list-disc list-inside text-text-secondary space-y-1\">
+          <h2 className="font-bold text-gold mb-3">📦 SDKs & Libraries</h2>
+          <div className="space-y-2 text-sm">
+            <p className="text-text-secondary">Official SDKs coming soon:</p>
+            <ul className="list-disc list-inside text-text-secondary space-y-1">
               <li>JavaScript/TypeScript</li>
               <li>Python</li>
               <li>Go</li>
@@ -243,14 +243,14 @@ export default function APIDocumentation() {
         </ResponsiveCard>
 
         {/* Support */}
-        <ResponsiveCard className=\"bg-gold/10 border-gold/50\">
-          <h2 className=\"font-bold text-gold mb-3\">💬 Support</h2>
-          <p className=\"text-text-secondary text-sm mb-3\">
+        <ResponsiveCard className="bg-gold/10 border-gold/50">
+          <h2 className="font-bold text-gold mb-3">💬 Support</h2>
+          <p className="text-text-secondary text-sm mb-3">
             Have questions? Join our developer community.
           </p>
           <a
-            href=\"https://discord.gg/misfitministries\"
-            className=\"text-gold font-bold hover:underline text-sm\"
+            href="https://discord.gg/misfitministries"
+            className="text-gold font-bold hover:underline text-sm"
           >
             Discord Community →
           </a>

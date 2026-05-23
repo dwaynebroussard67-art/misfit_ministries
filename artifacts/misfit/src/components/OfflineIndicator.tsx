@@ -39,12 +39,12 @@ export function OfflineIndicator() {
       }`}
     >
       {!isOnline ? (
-        <div className=\"flex items-center gap-2\">
+        <div className="flex items-center gap-2">
           <span>🔴</span>
           <span>Offline Mode - Data will sync when online</span>
         </div>
       ) : offlineActions > 0 ? (
-        <div className=\"flex items-center gap-2\">
+        <div className="flex items-center gap-2">
           <span>⚠️</span>
           <span>{offlineActions} action(s) pending sync</span>
         </div>

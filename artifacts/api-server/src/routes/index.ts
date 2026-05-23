@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import type { Router as ExpressRouter } from 'express';
 import prayersRouter from './prayers';
 import testimoniesRouter from './testimonies';
 import resourcesRouter from './resources';
@@ -11,7 +12,7 @@ import printifyRouter from './printify';
 import autopilotRouter from './autopilot';
 import contentCreatorRouter from './content-creator';
 
-const router = Router();
+const router: ExpressRouter = Router();
 
 router.use('/prayers', prayersRouter);
 router.use('/testimonies', testimoniesRouter);

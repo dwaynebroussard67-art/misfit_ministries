@@ -3,7 +3,7 @@ import { db } from '../db';
 import type { orders as OrdersTable } from '../db/schema/orders';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-04-10',
+  apiVersion: '2023-10-16',
 });
 
 export async function createCheckoutSession(
@@ -50,6 +50,7 @@ export async function handleCheckoutSessionCompleted(event: Stripe.Event) {
 
   // Store order in database
   const { orders: ordersTable } = await import('../db/schema/orders');
+  const { eq } = await import('drizzle-orm');
   await db.insert(ordersTable).values({
     user_id: userId,
     stripe_payment_intent_id: paymentIntentId,
@@ -70,9 +71,10 @@ export async function handlePaymentIntentSucceeded(event: Stripe.Event) {
   // Update order status
   if (paymentIntent.id) {
     const { orders: ordersTable } = await import('../db/schema/orders');
+    const { eq } = await import('drizzle-orm');
     await db.update(ordersTable)
       .set({ status: 'succeeded' })
-      .where({ stripe_payment_intent_id: paymentIntent.id });
+      .where(eq(ordersTable.stripe_payment_intent_id, paymentIntent.id));
   }
 
   console.log(`Payment succeeded: ${paymentIntent.id}`);
@@ -84,9 +86,10 @@ export async function handlePaymentIntentFailed(event: Stripe.Event) {
   // Update order status
   if (paymentIntent.id) {
     const { orders: ordersTable } = await import('../db/schema/orders');
+    const { eq } = await import('drizzle-orm');
     await db.update(ordersTable)
       .set({ status: 'failed' })
-      .where({ stripe_payment_intent_id: paymentIntent.id });
+      .where(eq(ordersTable.stripe_payment_intent_id, paymentIntent.id));
   }
 
   console.error(`Payment failed: ${paymentIntent.id}`);
@@ -99,5 +102,6 @@ export function verifyWebhookSignature(body: string, signature: string) {
 
 export async function getUserOrders(userId: string) {
   const { orders: ordersTable } = await import('../db/schema/orders');
-  return await db.select().from(ordersTable).where({ user_id: userId });
+  const { eq } = await import('drizzle-orm');
+  return await db.select().from(ordersTable).where(eq(ordersTable.user_id, userId));
 }

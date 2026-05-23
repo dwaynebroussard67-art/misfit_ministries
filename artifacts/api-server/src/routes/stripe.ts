@@ -1,22 +1,25 @@
 import { Router, Request, Response } from 'express';
+import type { Router as ExpressRouter } from 'express';
 import { createCheckoutSession, verifyWebhookSignature, handleCheckoutSessionCompleted, handlePaymentIntentSucceeded, handlePaymentIntentFailed, getUserOrders } from '../services/stripe-service';
 import { PRODUCTS, MERCHANDISE } from '../config/products';
-import { forgeAuth } from '../middleware/forge-auth';
+import { requireForge } from '../middleware/forge-auth';
 
-const router = Router();
+const router: ExpressRouter = Router();
 
 // Create checkout session
-router.post('/checkout', async (req: Request, res: Response) => {
+router.post('/checkout', async (req: Request, res: Response): Promise<void> => {
   try {
     const { items } = req.body;
     const user = (req as any).user;
 
     if (!user || !user.id) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
     }
 
     if (!items || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ error: 'Invalid items' });
+      res.status(400).json({ error: 'Invalid items' });
+      return;
     }
 
     const session = await createCheckoutSession(
@@ -35,12 +38,13 @@ router.post('/checkout', async (req: Request, res: Response) => {
 });
 
 // Get user orders
-router.get('/orders', async (req: Request, res: Response) => {
+router.get('/orders', async (req: Request, res: Response): Promise<void> => {
   try {
     const user = (req as any).user;
 
     if (!user || !user.id) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
     }
 
     const orders = await getUserOrders(user.id);
@@ -52,7 +56,7 @@ router.get('/orders', async (req: Request, res: Response) => {
 });
 
 // Webhook endpoint
-router.post('/webhook', async (req: Request, res: Response) => {
+router.post('/webhook', async (req: Request, res: Response): Promise<void> => {
   const sig = req.headers['stripe-signature'] as string;
 
   try {
@@ -61,7 +65,8 @@ router.post('/webhook', async (req: Request, res: Response) => {
     // Handle test events
     if (event.id.startsWith('evt_test_')) {
       console.log('[Webhook] Test event detected:', event.type);
-      return res.json({ verified: true });
+      res.json({ verified: true });
+      return;
     }
 
     switch (event.type) {
@@ -86,7 +91,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
 });
 
 // Get products (public)
-router.get('/products', (req: Request, res: Response) => {
+router.get('/products', (req: Request, res: Response): void => {
   res.json({ products: PRODUCTS, merchandise: MERCHANDISE });
 });
 
