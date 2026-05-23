@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter @workspace/api-server dev & pnpm --filter @workspace/misfit dev",
-    "build": "pnpm --filter @workspace/api-server build && pnpm --filter @workspace/misfit build",
+    "build": "pnpm --filter @workspace/db build && pnpm --filter @workspace/api-server build && pnpm --filter @workspace/misfit build",
     "test": "pnpm --filter @workspace/api-server test && pnpm --filter @workspace/misfit test",
     "lint": "pnpm --filter @workspace/api-server lint && pnpm --filter @workspace/misfit lint",
     "db:push": "pnpm --filter @workspace/db db:push",
