@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useState } from 'react';
 import { ResponsiveLayout, ResponsiveCard } from '../components/ResponsiveLayout';
+import { Lock, Eye, EyeOff } from 'lucide-react';
 
 interface DashboardStats {
   totalPrayers: number;
@@ -16,7 +17,86 @@ interface DashboardStats {
 }
 
 export default function AdminDashboard() {
+  const [authenticated, setAuthenticated] = useState(false);
+  const [passphrase, setPassphrase] = useState('');
+  const [showPassphrase, setShowPassphrase] = useState(false);
+  const [loginError, setLoginError] = useState('');
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('24h');
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+
+    try {
+      const response = await fetch('/api/forge/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passphrase }),
+      });
+
+      if (response.ok) {
+        setAuthenticated(true);
+        setPassphrase('');
+      } else {
+        setLoginError('Invalid passphrase. Please try again.');
+      }
+    } catch (error) {
+      setLoginError('Authentication failed. Please try again.');
+      console.error('Login error:', error);
+    }
+  };
+
+  if (!authenticated) {
+    return (
+      <ResponsiveLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <ResponsiveCard className="max-w-md w-full">
+            <div className="flex items-center justify-center mb-6">
+              <Lock className="text-gold mr-2" size={32} />
+              <h1 className="text-3xl font-bold text-gold">Admin Access</h1>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-text-primary mb-2">
+                  Passphrase
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassphrase ? 'text' : 'password'}
+                    value={passphrase}
+                    onChange={(e) => setPassphrase(e.target.value)}
+                    placeholder="Enter admin passphrase"
+                    className="w-full px-4 py-3 bg-dark border border-gold/30 rounded text-text-primary placeholder-text-secondary focus:outline-none focus:border-gold"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassphrase(!showPassphrase)}
+                    className="absolute right-3 top-3 text-text-secondary hover:text-gold"
+                  >
+                    {showPassphrase ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              {loginError && (
+                <div className="bg-red-900/30 border border-red-500/30 rounded p-3 text-red-200 text-sm">
+                  {loginError}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="w-full bg-gold text-dark font-bold py-3 rounded hover:bg-gold/90 transition-colors"
+              >
+                Access Dashboard
+              </button>
+            </form>
+          </ResponsiveCard>
+        </div>
+      </ResponsiveLayout>
+    );
+  }
 
   const { data: stats } = useQuery({
     queryKey: ['dashboard-stats', timeRange],
