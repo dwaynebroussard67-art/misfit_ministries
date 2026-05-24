@@ -11,6 +11,7 @@ import videoTestimonialsRouter from './video-testimonials';
 import printifyRouter from './printify';
 import autopilotRouter from './autopilot';
 import contentCreatorRouter from './content-creator';
+import authRouter from './auth';
 
 const router: ExpressRouter = Router();
 
@@ -25,5 +26,6 @@ router.use('/video-testimonials', videoTestimonialsRouter);
 router.use('/printify', printifyRouter);
 router.use('/autopilot', autopilotRouter);
 router.use('/content-creator', contentCreatorRouter);
+router.use('/auth', authRouter);
 
 export default router;

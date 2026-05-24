@@ -19,7 +19,15 @@
     "vitest": "^1.6.1"
   },
   "dependencies": {
+    "@ai-sdk/groq": "^3.0.39",
+    "@types/bcryptjs": "^3.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/uuid": "^11.0.0",
+    "ai": "^6.0.191",
+    "bcryptjs": "^3.0.3",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.16.0",
-    "react-router-dom": "^7.15.1"
+    "react-router-dom": "^7.15.1",
+    "uuid": "^14.0.0"
   }
 }

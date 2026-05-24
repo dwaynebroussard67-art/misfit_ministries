@@ -1,5 +1,6 @@
 export * from './prayers.js';
 export * from './testimonies.js';
+export * from './users.js';
 export * from './resources.js';
 export * from './content.js';
 export * from './site_copy.js';

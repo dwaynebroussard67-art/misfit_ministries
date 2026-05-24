@@ -8,6 +8,7 @@ export const testimonies = mysqlTable('testimonies', {
   approved: boolean('approved').default(false),
   auto_approved: boolean('auto_approved').default(false),
   featured: boolean('featured').default(false),
+  deletedAt: timestamp('deleted_at'),
   created_at: timestamp('created_at').defaultNow(),
   updated_at: timestamp('updated_at').defaultNow().onUpdateNow(),
 });

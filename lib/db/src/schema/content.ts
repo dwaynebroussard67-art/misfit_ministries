@@ -10,6 +10,7 @@ export const content = mysqlTable('content', {
   published: boolean('published').default(false),
   featured_image: text('featured_image'),
   order: int('order').default(0),
+  deletedAt: timestamp('deleted_at'),
   created_at: timestamp('created_at').defaultNow(),
   updated_at: timestamp('updated_at').defaultNow().onUpdateNow(),
 });

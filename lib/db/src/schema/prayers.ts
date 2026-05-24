@@ -12,6 +12,7 @@ export const prayers = mysqlTable('prayers', {
   flagged_keywords: text('flagged_keywords'),
   latitude: decimal('latitude', { precision: 10, scale: 8 }),
   longitude: decimal('longitude', { precision: 11, scale: 8 }),
+  deletedAt: timestamp('deleted_at'),
   created_at: timestamp('created_at').defaultNow(),
   updated_at: timestamp('updated_at').defaultNow().onUpdateNow(),
 });

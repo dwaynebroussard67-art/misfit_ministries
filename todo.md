@@ -248,7 +248,7 @@
 - Sermon content population
 
 ## STATUS
-**CURRENT:** ✅ PRODUCTION BUILD SUCCESSFUL
+**CURRENT:** ✅ PRODUCTION BUILD + DESIGN OVERHAUL
 - All 10 pages built and tested
 - Core APIs fully functional
 - Crisis detection: 21/21 tests passing
@@ -260,6 +260,89 @@
 - Full test suite passing
 - TypeScript: 0 errors
 - Production build: 596 KB (163.95 KB gzipped)
+- ✅ Homepage redesigned with emotional impact
 
-**NEXT:** Deployment and launch
+**NEXT:** Complete remaining design improvements
 **COMMITMENT:** TURNKEY DELIVERY - Complete, tested, audited. NO HOLES. NO SHORTCUTS. ✅ DELIVERED
+
+
+---
+
+## PHASE 2: CRITICAL SECURITY & ARCHITECTURE IMPROVEMENTS
+
+### 1. Auth Hardening & Security Fixes
+- [ ] Move Forge session token from localStorage to httpOnly cookie
+- [ ] Add Secure and SameSite=Strict flags to auth cookie
+- [ ] Implement CSRF protection on state-changing endpoints
+- [ ] Add rate limiting to Forge auth attempts (10/15min per IP)
+- [ ] Test auth flow with XSS vulnerability scan
+
+### 2. Role System Expansion
+- [ ] Add `moderator` role to users table (scoped to content review only)
+- [ ] Create role-based middleware for moderator-only routes
+- [ ] Add role field to audit logs
+- [ ] Implement permission matrix (admin vs moderator vs user)
+- [ ] Update Forge dashboard to show role assignments
+
+### 3. Crisis Detection Upgrade
+- [ ] Replace keyword-only detection with LLM semantic classifier
+- [ ] Use Groq llama-3.3-70b for crisis signal detection
+- [ ] Add secondary check for coded language patterns
+- [ ] Test with indirect crisis phrases ("I'm so tired", "everyone would be better off")
+- [ ] Implement confidence scoring for crisis flags
+
+### 4. Soft Deletes & Audit Trail
+- [ ] Add `deletedAt TIMESTAMP NULL` to prayers table
+- [ ] Add `deletedAt TIMESTAMP NULL` to testimonies table
+- [ ] Add `deletedAt TIMESTAMP NULL` to content table
+- [ ] Update queries to exclude soft-deleted records by default
+- [ ] Add recovery endpoint for admins to restore deleted content
+- [ ] Implement audit logging for all deletions
+
+### 5. Human Escalation Pathway
+- [ ] Create crisis escalation flag in nura_conversations
+- [ ] Implement admin notification system (email/push)
+- [ ] Add crisis escalation dashboard to Forge
+- [ ] Create volunteer follow-up workflow
+- [ ] Add response tracking for escalated conversations
+
+### 6. Media Manager & S3 Upload
+- [ ] Complete S3 upload pipeline for images/video
+- [ ] Add media metadata to database
+- [ ] Implement image optimization (resize, compress)
+- [ ] Create media library UI in Forge
+- [ ] Add image CDN caching strategy
+
+### 7. SEO Layer & Meta Tags
+- [ ] Install react-helmet for dynamic meta tags
+- [ ] Add page-level titles and descriptions
+- [ ] Implement OG tags for social sharing
+- [ ] Create sitemap.xml generation
+- [ ] Add structured data (JSON-LD) for testimonies and resources
+
+### 8. Rate Limiting UI Completion
+- [ ] Add visual feedback for rate limit warnings
+- [ ] Implement countdown timer for prayer submission
+- [ ] Add error messaging for rate limit exceeded
+- [ ] Create rate limit status indicator
+- [ ] Add admin override capability
+
+### 9. Component Library Standardization
+- [ ] Create shared form component patterns
+- [ ] Standardize table layouts across Forge
+- [ ] Create reusable modal patterns
+- [ ] Implement consistent button styles
+- [ ] Add component documentation
+
+### 10. Testing & Validation
+- [ ] Write security tests for auth flow
+- [ ] Test crisis detection with edge cases
+- [ ] Validate soft delete functionality
+- [ ] Test human escalation workflow
+- [ ] Perform XSS and CSRF vulnerability scans
+
+### 11. Checkpoint & Delivery
+- [ ] Run full test suite
+- [ ] Verify all features working
+- [ ] Save production checkpoint
+- [ ] Deliver Phase 2 to user
