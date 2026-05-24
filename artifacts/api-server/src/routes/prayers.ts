@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { getDb, prayers } from '@workspace/db';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, isNull } from 'drizzle-orm';
 import { z } from 'zod';
-import { detectCrisisKeywords } from '../utils/crisis-detection.js';
+import { detectCrisisKeywords, comprehensiveCrisisDetection } from '../utils/crisis-detection.js';
 import { requireForge } from '../middleware/forge-auth.js';
 import { sendCrisisAlert } from '../utils/email-service.js';
 
@@ -28,14 +28,14 @@ const createPrayerSchema = z.object({
   is_anonymous: z.boolean().optional().default(false),
 });
 
-// GET /api/prayers - List all prayers
+// GET /api/prayers - List all non-deleted prayers
 router.get('/', async (req: Request, res: Response) => {
   try {
     const db = await getDb();
     const category = req.query.category as string | undefined;
     const status = req.query.status as string | undefined;
 
-    let query: any = db.select().from(prayers);
+    let query: any = db.select().from(prayers).where(isNull(prayers.deletedAt));
     if (category && PRAYER_CATEGORIES.includes(category)) {
       query = query.where(eq(prayers.category, category));
     }
@@ -66,7 +66,10 @@ router.post('/', async (req: Request, res: Response) => {
       return;
     }
     
-    const { crisis_flag, keywords } = detectCrisisKeywords(parsed.request);
+    // Use comprehensive crisis detection (keywords + LLM semantic analysis)
+    const crisisAnalysis = await comprehensiveCrisisDetection(parsed.request);
+    const crisis_flag = crisisAnalysis.crisis_flag;
+    const keywords = crisisAnalysis.keywords;
 
     const db = await getDb();
     const result = await db.insert(prayers).values({
@@ -91,7 +94,9 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({
       success: true,
       crisis_flag: crisis_flag,
-      message: crisis_flag ? 'Prayer submitted. Crisis detected. 988 resources available.' : 'Prayer submitted.',
+      confidence_score: crisisAnalysis.confidence_score,
+      should_refer_988: crisisAnalysis.should_refer_988,
+      message: crisisAnalysis.should_refer_988 ? 'Prayer submitted. Crisis detected. 988 resources available.' : 'Prayer submitted.',
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -151,17 +156,32 @@ router.patch('/:id/pray', async (req: Request, res: Response) => {
   }
 });
 
-// DELETE /api/prayers/:id - Delete a prayer (Forge only)
+// DELETE /api/prayers/:id - Soft delete a prayer (Forge only)
 router.delete('/:id', requireForge, async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
     const db = await getDb();
 
-    await db.delete(prayers).where(eq(prayers.id, id));
-    res.json({ success: true });
+    // Soft delete: set deletedAt timestamp
+    await db.update(prayers).set({ deletedAt: new Date() }).where(eq(prayers.id, id));
+    res.json({ success: true, message: 'Prayer soft deleted' });
   } catch (error) {
     console.error('Error deleting prayer:', error);
     res.status(500).json({ error: 'Failed to delete prayer' });
+  }
+});
+
+// POST /api/prayers/:id/restore - Restore a soft-deleted prayer (Forge only)
+router.post('/:id/restore', requireForge, async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id);
+    const db = await getDb();
+
+    await db.update(prayers).set({ deletedAt: null }).where(eq(prayers.id, id));
+    res.json({ success: true, message: 'Prayer restored' });
+  } catch (error) {
+    console.error('Error restoring prayer:', error);
+    res.status(500).json({ error: 'Failed to restore prayer' });
   }
 });
 

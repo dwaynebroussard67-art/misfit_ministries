@@ -13,6 +13,8 @@ import Wreckage from './pages/Wreckage';
 import Armory from './pages/Armory';
 import Store from './pages/Store';
 import Teachings from './pages/Teachings';
+import Login from './pages/Login';
+import UserDashboard from './pages/UserDashboard';
 
 export default function App() {
   return (
@@ -30,6 +32,9 @@ export default function App() {
             <Route path="/armory" element={<Armory />} />
             <Route path="/store" element={<Store />} />
             <Route path="/teachings" element={<Teachings />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<UserDashboard />} />
+            <Route path="/forge" element={<AdminDashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
           </Routes>
         </Layout>
