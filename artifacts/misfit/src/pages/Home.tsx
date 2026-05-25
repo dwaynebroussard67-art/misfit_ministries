@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Heart, MessageCircle, Shield, ArrowRight } from 'lucide-react';
+import { SEO } from '../components/SEO';
 
 export default function Home() {
   const { data: siteCopy } = useQuery({
@@ -12,7 +13,9 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <>
+      <SEO />
+      <div className="min-h-screen bg-black text-white">
       {/* Hero Section - Emotional Impact */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background gradient with depth */}
@@ -246,6 +249,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }

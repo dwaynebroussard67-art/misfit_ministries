@@ -19,3 +19,4 @@ export * from './autopilot_scheduled.js';
 export * from './two_factor_auth.js';
 export * from './audit_logs.js';
 export * from './video_testimonials.js';
+export * from './email-verifications.js';
