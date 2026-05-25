@@ -4,6 +4,7 @@ import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { generateNuraResponse, ChatMessage } from '../utils/nura-adapter.js';
 import { detectCrisisKeywords, shouldRefer988 } from '../utils/crisis-detection.js';
+import { sendCrisisAlert } from '../utils/email-service.js';
 import { requireForge } from '../middleware/forge-auth.js';
 
 const router: ReturnType<typeof Router> = Router();
@@ -56,6 +57,14 @@ router.post('/chat', async (req: Request, res: Response) => {
     // Add 988 reference if crisis detected
     if (refer988) {
       reply += '\n\n**If you are in immediate danger, please call 988 (Suicide & Crisis Lifeline) right now. They have trained counselors available 24/7.**';
+      
+      // Send email alert to admin
+      const adminEmail = process.env.ADMIN_EMAIL || 'admin@misfitministries.com';
+      try {
+        await sendCrisisAlert(adminEmail, `Nura Session ${parsed.sessionId}`, keywords);
+      } catch (emailError) {
+        console.error('Failed to send Nura crisis alert email:', emailError);
+      }
     }
 
     res.json({

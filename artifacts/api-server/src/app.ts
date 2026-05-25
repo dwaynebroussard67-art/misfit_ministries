@@ -19,8 +19,19 @@ export function createApp(): Express {
   }));
 
   // CORS middleware (must come early for credentials)
+  const allowedOrigins = [
+    process.env.FRONTEND_URL || 'http://localhost:5173',
+    process.env.PRODUCTION_URL || 'https://misfit-ministries.manus.space',
+  ];
+
   app.use(cors({
-    origin: true,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   }));
 

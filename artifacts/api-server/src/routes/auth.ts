@@ -68,7 +68,7 @@ router.post('/login', async (req: Request, res: Response) => {
       return;
     }
 
-    if (user.isActive !== 'true') {
+    if (!user.isActive) {
       res.status(403).json({ error: 'Account is deactivated' });
       return;
     }
@@ -145,7 +145,7 @@ router.get('/users', requireAuth, requireAdmin, async (req: Request, res: Respon
         email: u.email,
         name: u.name,
         role: u.role,
-        isActive: u.isActive === 'true',
+        isActive: u.isActive,
         lastLogin: u.lastLogin,
         createdAt: u.createdAt,
       })),

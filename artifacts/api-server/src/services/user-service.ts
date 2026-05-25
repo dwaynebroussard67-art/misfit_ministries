@@ -32,7 +32,7 @@ export class UserService {
       passwordHash,
       name: input.name,
       role: input.role || 'user',
-      isActive: 'true',
+      isActive: true,
     });
 
     return { id, email: input.email, name: input.name, role: input.role || 'user' };
@@ -91,7 +91,7 @@ export class UserService {
    */
   static async deactivateUser(id: string) {
     const db = await getDb();
-    await db.update(users).set({ isActive: 'false' }).where(eq(users.id, id));
+    await db.update(users).set({ isActive: false }).where(eq(users.id, id));
   }
 
   /**
