@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Play, Star, Users } from 'lucide-react';
+import { ImageHero } from '../components/ImageHero';
+import { ImageGallery } from '../components/ImageGallery';
 
 interface TextTestimony {
   id: number;
@@ -56,180 +58,213 @@ export default function Testimonies() {
   const otherTestimonies = textTestimonies.filter(t => !t.featured);
 
   return (
-    <div className="min-h-screen bg-dark">
-      {/* Video Modal */}
-      {selectedVideo && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-dark rounded-lg max-w-2xl w-full">
-            <div className="relative bg-black aspect-video rounded-t-lg overflow-hidden">
-              <video
-                src={selectedVideo.video_url}
-                controls
-                autoPlay
-                className="w-full h-full"
-              />
+    <>
+      {/* Hero Section */}
+      <ImageHero
+        imageSrc="/manus-storage/TXxy6TRRe5Rv_0451480f.jpg"
+        overlayOpacity={0.6}
+        overlayColor="from-black/70 to-black/50"
+      >
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+          <h1 className="text-6xl md:text-7xl font-bold mb-6 leading-tight text-white">
+            Testimonies
+          </h1>
+          <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+            Real stories of transformation. Real people. Real faith.
+          </p>
+        </div>
+      </ImageHero>
+
+      <div className="min-h-screen bg-dark">
+        {/* Video Modal */}
+        {selectedVideo && (
+          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+            <div className="bg-dark rounded-lg max-w-2xl w-full">
+              <div className="relative bg-black aspect-video rounded-t-lg overflow-hidden">
+                <video
+                  src={selectedVideo.video_url}
+                  controls
+                  autoPlay
+                  className="w-full h-full"
+                />
+              </div>
+              <div className="p-6">
+                <h3 className="text-2xl font-bold text-gold mb-2">{selectedVideo.title}</h3>
+                <p className="text-text-secondary mb-4">{selectedVideo.description}</p>
+                <div className="flex items-center justify-between text-sm text-text-secondary">
+                  <span>By {selectedVideo.user_name}</span>
+                  <span>{selectedVideo.view_count} views</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedVideo(null)}
+                className="w-full bg-dark-secondary text-gold py-3 font-semibold hover:bg-dark-secondary/80 transition-colors"
+              >
+                Close
+              </button>
             </div>
-            <div className="p-6">
-              <h3 className="text-2xl font-bold text-gold mb-2">{selectedVideo.title}</h3>
-              <p className="text-text-secondary mb-4">{selectedVideo.description}</p>
-              <div className="flex items-center justify-between text-sm text-text-secondary">
-                <span>By {selectedVideo.user_name}</span>
-                <span>{selectedVideo.view_count} views</span>
+          </div>
+        )}
+
+        <div className="max-w-6xl mx-auto p-8">
+          {/* Header */}
+          <div className="mb-12">
+            <h1 className="text-4xl font-bold text-gold mb-4">Testimonies</h1>
+            <p className="text-text-secondary text-lg">
+              Real stories of transformation. Real people. Real faith. These are the stories of Misfits who found redemption, hope, and purpose.
+            </p>
+          </div>
+
+          {/* Featured Testimonies */}
+          {featuredTestimonies.length > 0 && (
+            <div className="mb-12">
+              <div className="flex items-center gap-2 mb-6">
+                <Star className="text-gold" size={24} />
+                <h2 className="text-3xl font-bold text-gold">Featured Stories</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {featuredTestimonies.map(testimony => (
+                  <div
+                    key={testimony.id}
+                    className="bg-dark-secondary rounded-lg p-6 border border-gold/30 hover:border-gold/60 transition-all hover:shadow-lg hover:shadow-gold/20"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="text-xl font-bold text-gold">{testimony.title}</h3>
+                        <p className="text-sm text-text-secondary">{testimony.name}</p>
+                      </div>
+                      <Star className="text-gold flex-shrink-0" size={20} fill="currentColor" />
+                    </div>
+                    <p className="text-text-secondary mb-4 line-clamp-4">{testimony.story}</p>
+                    <button className="text-gold font-semibold hover:underline text-sm">
+                      Read Full Story →
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
-            <button
-              onClick={() => setSelectedVideo(null)}
-              className="w-full bg-dark-secondary text-gold py-3 font-semibold hover:bg-dark-secondary/80 transition-colors"
-            >
-              Close
+          )}
+
+          {/* Video Testimonies */}
+          {videoTestimonies.length > 0 && (
+            <div className="mb-12">
+              <div className="flex items-center gap-2 mb-6">
+                <Play className="text-gold" size={24} />
+                <h2 className="text-3xl font-bold text-gold">Video Testimonies</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {videoTestimonies.map(video => (
+                  <button
+                    key={video.id}
+                    onClick={() => setSelectedVideo(video)}
+                    className="group relative rounded-lg overflow-hidden hover:shadow-lg hover:shadow-gold/30 transition-all"
+                  >
+                    {/* Thumbnail */}
+                    <div className="relative bg-black aspect-video">
+                      {video.thumbnail_url ? (
+                        <img
+                          src={video.thumbnail_url}
+                          alt={video.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-gold/20 to-dark flex items-center justify-center">
+                          <Play className="text-gold/50" size={48} />
+                        </div>
+                      )}
+                      {/* Play Button Overlay */}
+                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                        <div className="bg-gold/90 group-hover:bg-gold p-3 rounded-full transition-colors">
+                          <Play className="text-dark" size={24} fill="currentColor" />
+                        </div>
+                      </div>
+                      {/* Duration */}
+                      <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-xs text-white">
+                        {Math.floor(video.duration_seconds / 60)}:{(video.duration_seconds % 60).toString().padStart(2, '0')}
+                      </div>
+                    </div>
+
+                    {/* Info */}
+                    <div className="bg-dark-secondary p-4">
+                      <h3 className="font-bold text-gold text-left mb-1 line-clamp-2">{video.title}</h3>
+                      <p className="text-sm text-text-secondary text-left mb-2">{video.user_name}</p>
+                      <p className="text-xs text-text-secondary text-left">{video.view_count} views</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* All Text Testimonies */}
+          {otherTestimonies.length > 0 && (
+            <div className="mb-12">
+              <h2 className="text-3xl font-bold text-gold mb-6">All Stories</h2>
+              <div className="space-y-6">
+                {otherTestimonies.map(testimony => (
+                  <div
+                    key={testimony.id}
+                    className="bg-dark-secondary rounded-lg p-8 border border-gold/20 hover:border-gold/50 transition-all"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h3 className="text-2xl font-bold text-gold mb-1">{testimony.title}</h3>
+                        <p className="text-text-secondary">{testimony.name}</p>
+                      </div>
+                      <span className="text-xs text-text-secondary">
+                        {new Date(testimony.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-text-secondary leading-relaxed mb-4">{testimony.story}</p>
+                    <button className="text-gold font-semibold hover:underline">
+                      Share This Story →
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-text-secondary">Loading testimonies...</p>
+            </div>
+          ) : textTestimonies.length === 0 && videoTestimonies.length === 0 ? (
+            <div className="text-center py-12">
+              <Users className="mx-auto mb-4 text-gold/50" size={48} />
+              <p className="text-text-secondary">No testimonies yet.</p>
+              <p className="text-text-secondary text-sm mt-2">Check back soon for inspiring stories of transformation.</p>
+            </div>
+          ) : null}
+
+          {/* Redemption Gallery */}
+          <div className="mt-12 mb-12">
+            <div className="text-center mb-8">
+              <h2 className="text-4xl font-bold text-gold mb-4">Stories of Redemption</h2>
+              <p className="text-text-secondary">Hope is real. Change is possible. Transformation happens.</p>
+            </div>
+            <ImageGallery
+              images={[
+                { src: '/manus-storage/zEyJuX1RIUb5_29196203.jpg', alt: 'Faith journey' },
+                { src: '/manus-storage/DsY6sMTOxAeT_86b53a30.jpg', alt: 'Hope in ruins' },
+                { src: '/manus-storage/FKw6EHikVkDl_d076de43.png', alt: 'Hope community' },
+              ]}
+            />
+          </div>
+
+          {/* Call to Action */}
+          <div className="mt-12 bg-gradient-to-r from-gold/10 to-gold/5 rounded-lg p-8 border border-gold/30 text-center">
+            <h3 className="text-2xl font-bold text-gold mb-3">Share Your Story</h3>
+            <p className="text-text-secondary mb-6">
+              Your testimony could be the breakthrough someone needs. Share how God has worked in your life.
+            </p>
+            <button className="bg-gold text-dark font-bold px-8 py-3 rounded hover:bg-gold/90 transition-colors">
+              Submit Your Testimony
             </button>
           </div>
         </div>
-      )}
-
-      <div className="max-w-6xl mx-auto p-8">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-gold mb-4">Testimonies</h1>
-          <p className="text-text-secondary text-lg">
-            Real stories of transformation. Real people. Real faith. These are the stories of Misfits who found redemption, hope, and purpose.
-          </p>
-        </div>
-
-        {/* Featured Testimonies */}
-        {featuredTestimonies.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center gap-2 mb-6">
-              <Star className="text-gold" size={24} />
-              <h2 className="text-3xl font-bold text-gold">Featured Stories</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {featuredTestimonies.map(testimony => (
-                <div
-                  key={testimony.id}
-                  className="bg-dark-secondary rounded-lg p-6 border border-gold/30 hover:border-gold/60 transition-all hover:shadow-lg hover:shadow-gold/20"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="text-xl font-bold text-gold">{testimony.title}</h3>
-                      <p className="text-sm text-text-secondary">{testimony.name}</p>
-                    </div>
-                    <Star className="text-gold flex-shrink-0" size={20} fill="currentColor" />
-                  </div>
-                  <p className="text-text-secondary mb-4 line-clamp-4">{testimony.story}</p>
-                  <button className="text-gold font-semibold hover:underline text-sm">
-                    Read Full Story →
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Video Testimonies */}
-        {videoTestimonies.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center gap-2 mb-6">
-              <Play className="text-gold" size={24} />
-              <h2 className="text-3xl font-bold text-gold">Video Testimonies</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {videoTestimonies.map(video => (
-                <button
-                  key={video.id}
-                  onClick={() => setSelectedVideo(video)}
-                  className="group relative rounded-lg overflow-hidden hover:shadow-lg hover:shadow-gold/30 transition-all"
-                >
-                  {/* Thumbnail */}
-                  <div className="relative bg-black aspect-video">
-                    {video.thumbnail_url ? (
-                      <img
-                        src={video.thumbnail_url}
-                        alt={video.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-gold/20 to-dark flex items-center justify-center">
-                        <Play className="text-gold/50" size={48} />
-                      </div>
-                    )}
-                    {/* Play Button Overlay */}
-                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                      <div className="bg-gold/90 group-hover:bg-gold p-3 rounded-full transition-colors">
-                        <Play className="text-dark" size={24} fill="currentColor" />
-                      </div>
-                    </div>
-                    {/* Duration */}
-                    <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-xs text-white">
-                      {Math.floor(video.duration_seconds / 60)}:{(video.duration_seconds % 60).toString().padStart(2, '0')}
-                    </div>
-                  </div>
-
-                  {/* Info */}
-                  <div className="bg-dark-secondary p-4">
-                    <h3 className="font-bold text-gold text-left mb-1 line-clamp-2">{video.title}</h3>
-                    <p className="text-sm text-text-secondary text-left mb-2">{video.user_name}</p>
-                    <p className="text-xs text-text-secondary text-left">{video.view_count} views</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* All Text Testimonies */}
-        {otherTestimonies.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-3xl font-bold text-gold mb-6">All Stories</h2>
-            <div className="space-y-6">
-              {otherTestimonies.map(testimony => (
-                <div
-                  key={testimony.id}
-                  className="bg-dark-secondary rounded-lg p-8 border border-gold/20 hover:border-gold/50 transition-all"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-2xl font-bold text-gold mb-1">{testimony.title}</h3>
-                      <p className="text-text-secondary">{testimony.name}</p>
-                    </div>
-                    <span className="text-xs text-text-secondary">
-                      {new Date(testimony.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <p className="text-text-secondary leading-relaxed mb-4">{testimony.story}</p>
-                  <button className="text-gold font-semibold hover:underline">
-                    Share This Story →
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {loading ? (
-          <div className="text-center py-12">
-            <p className="text-text-secondary">Loading testimonies...</p>
-          </div>
-        ) : textTestimonies.length === 0 && videoTestimonies.length === 0 ? (
-          <div className="text-center py-12">
-            <Users className="mx-auto mb-4 text-gold/50" size={48} />
-            <p className="text-text-secondary">No testimonies yet.</p>
-            <p className="text-text-secondary text-sm mt-2">Check back soon for inspiring stories of transformation.</p>
-          </div>
-        ) : null}
-
-        {/* Call to Action */}
-        <div className="mt-12 bg-gradient-to-r from-gold/10 to-gold/5 rounded-lg p-8 border border-gold/30 text-center">
-          <h3 className="text-2xl font-bold text-gold mb-3">Share Your Story</h3>
-          <p className="text-text-secondary mb-6">
-            Your testimony could be the breakthrough someone needs. Share how God has worked in your life.
-          </p>
-          <button className="bg-gold text-dark font-bold px-8 py-3 rounded hover:bg-gold/90 transition-colors">
-            Submit Your Testimony
-          </button>
-        </div>
       </div>
-    </div>
+    </>
   );
 }

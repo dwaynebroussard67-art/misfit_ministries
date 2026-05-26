@@ -327,7 +327,17 @@
 - [ ] Create rate limit status indicator
 - [ ] Add admin override capability
 
-### 9. Component Library Standardization
+### 9. Image Integration & Visual Polish
+- [x] Create ImageGallery component with lightbox functionality
+- [x] Create ImageHero component for full-screen hero sections
+- [x] Create ImageSection component for image-text layouts
+- [x] Integrate images into Home page (hero + 3 galleries)
+- [x] Integrate images into Prayer Wall page (hero + stories gallery)
+- [x] Integrate images into Testimonies page (hero + redemption gallery)
+- [x] Test image loading and animations across all pages
+- [x] Verify responsive design on mobile/tablet/desktop
+
+### 10. Component Library Standardization
 - [ ] Create shared form component patterns
 - [ ] Standardize table layouts across Forge
 - [ ] Create reusable modal patterns

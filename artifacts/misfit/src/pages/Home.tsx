@@ -2,6 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Heart, MessageCircle, Shield, ArrowRight } from 'lucide-react';
 import { SEO } from '../components/SEO';
+import { ImageHero } from '../components/ImageHero';
+import { ImageSection } from '../components/ImageSection';
+import { ImageGallery } from '../components/ImageGallery';
 
 export default function Home() {
   const { data: siteCopy } = useQuery({
@@ -16,16 +19,12 @@ export default function Home() {
     <>
       <SEO />
       <div className="min-h-screen bg-black text-white">
-      {/* Hero Section - Emotional Impact */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Background gradient with depth */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-slate-900 to-black" />
-        
-        {/* Animated background elements */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-amber-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-red-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" />
-        
-        {/* Content */}
+      {/* Hero Section - With Image Background */}
+      <ImageHero
+        imageSrc="/manus-storage/C6eLlgSFDzVK_8038cc19.jpg"
+        overlayOpacity={0.5}
+        overlayColor="from-black/70 to-black/50"
+      >
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           {/* Eyebrow */}
           <div className="inline-block mb-6">
@@ -81,15 +80,38 @@ export default function Home() {
               <a href="sms:741741?body=HOME" className="font-bold text-red-400 hover:text-red-300">text HOME to 741741</a>
             </p>
           </div>
-        </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
-          <div className="animate-bounce">
-            <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
+          {/* Scroll indicator */}
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="animate-bounce">
+              <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </div>
           </div>
+        </div>
+      </ImageHero>
+
+      {/* Compassion Gallery Section */}
+      <section className="py-24 bg-black relative">
+        <div className="max-w-6xl mx-auto px-6 mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-white">Jesus</span>
+              <br />
+              <span className="bg-gradient-to-r from-amber-400 to-amber-500 bg-clip-text text-transparent">Showed Us Compassion</span>
+            </h2>
+            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+              His love reaches the broken, the forgotten, and the lost.
+            </p>
+          </div>
+          <ImageGallery
+            images={[
+              { src: '/manus-storage/s505VAhPOKHQ_8e340907.jpg', alt: 'Jesus compassion and healing' },
+              { src: '/manus-storage/TXxy6TRRe5Rv_0451480f.jpg', alt: 'Jesus loves people' },
+              { src: '/manus-storage/GRUVSobI0iN1_f687f1ce.jpg', alt: 'Jesus healing compassion' },
+            ]}
+          />
         </div>
       </section>
 
@@ -174,6 +196,14 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Community Section with Image */}
+      <ImageSection
+        imageSrc="/manus-storage/RLdeerKMOR1Y_6d074f7c.jpg"
+        imagePosition="left"
+        title="We Are a Community"
+        description="You've been written off. Forgotten. Left behind. But God hasn't forgotten you. We are a community of misfits—people who have been written off, left behind, and forgotten. But God hasn't forgotten us. And neither have we forgotten each other. In this community, your pain is heard, your story matters, and your redemption is possible."
+      />
+
       {/* Crisis Resources Section */}
       <section className="py-24 bg-black relative overflow-hidden">
         {/* Background accent */}
@@ -231,22 +261,34 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Mission Section */}
+      {/* Mission Section with Image */}
+      <ImageSection
+        imageSrc="/manus-storage/tymo5IS5Pp3i_4212c05c.jpg"
+        imagePosition="right"
+        title="Our Mission"
+        description="Misfit Ministries exists to serve people in crisis with compassion and grace. We believe that every person has infinite worth in God's eyes, regardless of their past, their pain, or their circumstances. We are a community of misfits—people who have been written off, left behind, and forgotten. But God hasn't forgotten us. And neither have we forgotten each other."
+      />
+
+      {/* Strength Section */}
       <section className="py-24 bg-slate-950 relative">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              <span className="text-white">Our</span>
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-white">Find Your</span>
               <br />
-              <span className="bg-gradient-to-r from-amber-400 to-amber-500 bg-clip-text text-transparent">Mission</span>
+              <span className="bg-gradient-to-r from-amber-400 to-amber-500 bg-clip-text text-transparent">Strength</span>
             </h2>
-            <p className="text-xl text-slate-300 leading-relaxed mb-8">
-              Misfit Ministries exists to serve people in crisis with compassion and grace. We believe that every person has infinite worth in God's eyes, regardless of their past, their pain, or their circumstances.
-            </p>
-            <p className="text-lg text-slate-400">
-              We are a community of misfits—people who have been written off, left behind, and forgotten. But God hasn't forgotten us. And neither have we forgotten each other.
+            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+              In God, we find the courage to face our struggles and the strength to overcome.
             </p>
           </div>
+          <ImageGallery
+            images={[
+              { src: '/manus-storage/tymo5IS5Pp3i_4212c05c.jpg', alt: 'Fiery lion strength' },
+              { src: '/manus-storage/IPHRvuzn4lO9_2c7eafe7.jpg', alt: 'Flaming lion spirit' },
+              { src: '/manus-storage/0V7dS5dioNgN_e2d720ec.jpg', alt: 'Stages of faith journey' },
+            ]}
+          />
         </div>
       </section>
       </div>
