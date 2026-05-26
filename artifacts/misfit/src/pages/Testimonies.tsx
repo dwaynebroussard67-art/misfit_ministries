@@ -61,7 +61,7 @@ export default function Testimonies() {
     <>
       {/* Hero Section */}
       <ImageHero
-        imageSrc="/manus-storage/TXxy6TRRe5Rv_0451480f.jpg"
+        imageSrc="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=1200&h=600&fit=crop"
         overlayOpacity={0.6}
         overlayColor="from-black/70 to-black/50"
       >
@@ -246,9 +246,9 @@ export default function Testimonies() {
             </div>
             <ImageGallery
               images={[
-                { src: '/manus-storage/zEyJuX1RIUb5_29196203.jpg', alt: 'Faith journey' },
-                { src: '/manus-storage/DsY6sMTOxAeT_86b53a30.jpg', alt: 'Hope in ruins' },
-                { src: '/manus-storage/FKw6EHikVkDl_d076de43.png', alt: 'Hope community' },
+                { src: 'https://images.unsplash.com/photo-1511379938547-c1f69b13d835?w=400&h=300&fit=crop', alt: 'Faith journey' },
+                { src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop', alt: 'Hope in ruins' },
+                { src: 'https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=400&h=300&fit=crop', alt: 'Hope community' },
               ]}
             />
           </div>

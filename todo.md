@@ -328,6 +328,21 @@
 - [ ] Add admin override capability
 
 ### 9. Image Integration & Visual Polish
+- [x] Create ImageGallery component with lightbox
+- [x] Create ImageHero component for hero sections
+- [x] Create ImageSection component for image-text layouts
+- [x] Integrate images into Home, Prayer, Testimonies pages
+- [x] Replace /manus-storage/ paths with Unsplash CDN URLs
+
+### 10. CRITICAL SECURITY FIXES (Pre-Deployment)
+- [x] Change default admin passphrase from "988" to secure value
+- [x] Replace /manus-storage/ image paths with external URLs
+- [x] Add input validation (max lengths) to prayer/testimony schemas
+- [x] Add XSS sanitization to prayer/testimony submission
+- [x] Add pagination to GET /api/prayers (max 50 per page)
+- [x] Verify crisis email notifications are configured
+- [x] Build: 0 TypeScript errors
+- [x] Production build: 596 KB (163.95 KB gzipped)
 - [x] Create ImageGallery component with lightbox functionality
 - [x] Create ImageHero component for full-screen hero sections
 - [x] Create ImageSection component for image-text layouts

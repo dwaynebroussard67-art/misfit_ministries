@@ -64,10 +64,11 @@ export default function Prayer() {
         : `/api/prayers?category=${selectedCategory}`;
       const response = await fetch(url);
       const data = await response.json();
-      setPrayers(Array.isArray(data) ? data : []);
+      // Handle both paginated and array responses for backward compatibility
+      setPrayers(Array.isArray(data) ? data : (data.data ? data.data : []));
     } catch (error) {
       console.error('Error fetching prayers:', error);
-      setPrayers([]);
+      setResources([]);
     } finally {
       setLoading(false);
     }
@@ -77,7 +78,7 @@ export default function Prayer() {
     try {
       const response = await fetch('/api/resources');
       const data = await response.json();
-      setResources(Array.isArray(data) ? data : []);
+      setResources(Array.isArray(data) ? data : (data.data ? data.data : []));
     } catch (error) {
       console.error('Error fetching resources:', error);
     }
@@ -137,7 +138,7 @@ export default function Prayer() {
     <>
       {/* Hero Section */}
       <ImageHero
-        imageSrc="/manus-storage/IKY3Bvzbz3Z2_34f045b3.jpg"
+        imageSrc="https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=1200&h=600&fit=crop"
         overlayOpacity={0.6}
         overlayColor="from-black/70 to-black/50"
       >
@@ -398,9 +399,9 @@ export default function Prayer() {
             </div>
             <ImageGallery
               images={[
-                { src: '/manus-storage/0V7dS5dioNgN_e2d720ec.jpg', alt: 'Stages of faith' },
-                { src: '/manus-storage/dnTJ0UTn1TMd_91c78cf2.jpg', alt: 'Crisis support' },
-                { src: '/manus-storage/Mimp34my9rqa_9af002c7.jpg', alt: 'Community support' },
+                { src: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=300&fit=crop', alt: 'Stages of faith' },
+                { src: 'https://images.unsplash.com/photo-1511379938547-c1f69b13d835?w=400&h=300&fit=crop', alt: 'Crisis support' },
+                { src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop', alt: 'Community support' },
               ]}
             />
           </div>

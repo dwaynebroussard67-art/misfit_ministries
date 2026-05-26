@@ -7,10 +7,17 @@ import { requireForge } from '../middleware/forge-auth.js';
 const router: ReturnType<typeof Router> = Router();
 
 const createTestimonySchema = z.object({
-  name: z.string().optional(),
-  title: z.string().optional(),
-  story: z.string().min(1),
+  name: z.string().max(100, 'Name must be 100 characters or less').optional(),
+  title: z.string().max(200, 'Title must be 200 characters or less').optional(),
+  story: z.string().min(20, 'Story must be at least 20 characters').max(10000, 'Story must be 10000 characters or less'),
 });
+
+// Sanitize input to prevent XSS
+const sanitizeInput = (input: string): string => {
+  return input
+    .replace(/[<>"']/g, '')
+    .trim();
+};
 
 const updateTestimonySchema = z.object({
   approved: z.boolean().optional(),
@@ -39,9 +46,9 @@ router.post('/', async (req: Request, res: Response) => {
 
     const db = await getDb();
     await db.insert(testimonies).values({
-      name: parsed.name,
-      title: parsed.title,
-      story: parsed.story,
+      name: parsed.name ? sanitizeInput(parsed.name) : null,
+      title: parsed.title ? sanitizeInput(parsed.title) : null,
+      story: sanitizeInput(parsed.story),
       approved: false,
     });
 

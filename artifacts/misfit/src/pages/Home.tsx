@@ -21,7 +21,7 @@ export default function Home() {
       <div className="min-h-screen bg-black text-white">
       {/* Hero Section - With Image Background */}
       <ImageHero
-        imageSrc="/manus-storage/C6eLlgSFDzVK_8038cc19.jpg"
+        imageSrc="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&h=600&fit=crop"
         overlayOpacity={0.5}
         overlayColor="from-black/70 to-black/50"
       >
@@ -107,9 +107,9 @@ export default function Home() {
           </div>
           <ImageGallery
             images={[
-              { src: '/manus-storage/s505VAhPOKHQ_8e340907.jpg', alt: 'Jesus compassion and healing' },
-              { src: '/manus-storage/TXxy6TRRe5Rv_0451480f.jpg', alt: 'Jesus loves people' },
-              { src: '/manus-storage/GRUVSobI0iN1_f687f1ce.jpg', alt: 'Jesus healing compassion' },
+              { src: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=300&fit=crop', alt: 'Jesus compassion and healing' },
+              { src: 'https://images.unsplash.com/photo-1511379938547-c1f69b13d835?w=400&h=300&fit=crop', alt: 'Jesus loves people' },
+              { src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop', alt: 'Jesus healing compassion' },
             ]}
           />
         </div>
@@ -198,7 +198,7 @@ export default function Home() {
 
       {/* Community Section with Image */}
       <ImageSection
-        imageSrc="/manus-storage/RLdeerKMOR1Y_6d074f7c.jpg"
+        imageSrc="https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=1200&h=600&fit=crop"
         imagePosition="left"
         title="We Are a Community"
         description="You've been written off. Forgotten. Left behind. But God hasn't forgotten you. We are a community of misfits—people who have been written off, left behind, and forgotten. But God hasn't forgotten us. And neither have we forgotten each other. In this community, your pain is heard, your story matters, and your redemption is possible."
@@ -263,7 +263,7 @@ export default function Home() {
 
       {/* Mission Section with Image */}
       <ImageSection
-        imageSrc="/manus-storage/tymo5IS5Pp3i_4212c05c.jpg"
+        imageSrc="https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=1200&h=600&fit=crop"
         imagePosition="right"
         title="Our Mission"
         description="Misfit Ministries exists to serve people in crisis with compassion and grace. We believe that every person has infinite worth in God's eyes, regardless of their past, their pain, or their circumstances. We are a community of misfits—people who have been written off, left behind, and forgotten. But God hasn't forgotten us. And neither have we forgotten each other."
@@ -284,9 +284,9 @@ export default function Home() {
           </div>
           <ImageGallery
             images={[
-              { src: '/manus-storage/tymo5IS5Pp3i_4212c05c.jpg', alt: 'Fiery lion strength' },
-              { src: '/manus-storage/IPHRvuzn4lO9_2c7eafe7.jpg', alt: 'Flaming lion spirit' },
-              { src: '/manus-storage/0V7dS5dioNgN_e2d720ec.jpg', alt: 'Stages of faith journey' },
+              { src: 'https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=400&h=300&fit=crop', alt: 'Fiery lion strength' },
+              { src: 'https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=400&h=300&fit=crop', alt: 'Flaming lion spirit' },
+              { src: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=300&fit=crop', alt: 'Stages of faith journey' },
             ]}
           />
         </div>

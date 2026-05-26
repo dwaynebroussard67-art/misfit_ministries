@@ -22,11 +22,18 @@ const PRAYER_CATEGORIES = [
 ];
 
 const createPrayerSchema = z.object({
-  name: z.string().optional(),
-  request: z.string().min(1),
-  category: z.string().optional(),
+  name: z.string().max(100, 'Name must be 100 characters or less').optional(),
+  request: z.string().min(10, 'Prayer must be at least 10 characters').max(5000, 'Prayer must be 5000 characters or less'),
+  category: z.string().max(50).optional(),
   is_anonymous: z.boolean().optional().default(false),
 });
+
+// Sanitize input to prevent XSS
+const sanitizeInput = (input: string): string => {
+  return input
+    .replace(/[<>"']/g, '')
+    .trim();
+};
 
 // GET /api/prayers - List all non-deleted prayers
 router.get('/', async (req: Request, res: Response) => {
@@ -43,8 +50,23 @@ router.get('/', async (req: Request, res: Response) => {
       query = query.where(eq(prayers.status, status));
     }
 
-    const result = await query.orderBy(desc(prayers.created_at));
-    res.json(result);
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const offset = (page - 1) * limit;
+
+    const result = await query.orderBy(desc(prayers.created_at)).limit(limit).offset(offset);
+    const countResult = await db.select().from(prayers).where(isNull(prayers.deletedAt));
+    const total = countResult.length;
+
+    res.json({
+      data: result,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     console.error('Error fetching prayers:', error);
     res.status(500).json({ error: 'Failed to fetch prayers' });
@@ -73,8 +95,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     const db = await getDb();
     const result = await db.insert(prayers).values({
-      name: parsed.is_anonymous ? null : parsed.name,
-      request: parsed.request,
+      name: parsed.is_anonymous ? null : (parsed.name ? sanitizeInput(parsed.name) : null),
+      request: sanitizeInput(parsed.request),
       category: parsed.category || 'other',
       is_anonymous: parsed.is_anonymous,
       crisis_flag: crisis_flag,
