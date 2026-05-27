@@ -25,15 +25,21 @@ export function createApp(): Express {
 
   // CORS middleware (must come early for credentials)
   const allowedOrigins = [
-    process.env.FRONTEND_URL || 'http://localhost:5173',
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://misfit-ministries.onrender.com',
+    'https://misfit-ministries.anrender.com',
+    process.env.FRONTEND_URL || '',
     process.env.PRODUCTION_URL || 'https://misfit-ministries.manus.space',
-  ];
+  ].filter(Boolean);
 
   app.use(cors({
     origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.warn(`CORS blocked origin: ${origin}`);
         callback(new Error('Not allowed by CORS'));
       }
     },
