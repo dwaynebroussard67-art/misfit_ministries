@@ -20,9 +20,11 @@ app.use((err: any, req: any, res: any, next: any) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Misfit Ministries API Server running on port ${PORT}`);
+const PORT = parseInt(process.env.PORT || '10000', 10);
+const HOST = '0.0.0.0';
+
+app.listen(PORT, HOST, () => {
+  console.log(`🚀 Misfit Ministries API Server running on ${HOST}:${PORT}`);
   console.log(`📖 Health check: http://localhost:${PORT}/api/healthz`);
   console.log(`💬 Nura AI: POST http://localhost:${PORT}/api/nura/chat`);
   console.log(`🔐 Forge Admin: POST http://localhost:${PORT}/api/forge/auth`);
