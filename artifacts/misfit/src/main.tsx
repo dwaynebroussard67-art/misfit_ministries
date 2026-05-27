@@ -44,7 +44,13 @@ class ErrorBoundary extends Component<{children: any}, {error: any}> {
   }
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+// Safely get root element
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element (#root) not found in index.html');
+}
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <ErrorBoundary>
       <App />
