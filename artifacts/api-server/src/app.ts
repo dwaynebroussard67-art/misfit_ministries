@@ -58,13 +58,21 @@ export function createApp(): Express {
   app.use('/api/forge/auth', forgeAuthLimiter);
 
   // Serve static files from frontend dist
-  const frontendPath = path.join(__dirname, '../../misfit/dist');
-  app.use(express.static(frontendPath));
+  // Use absolute path from project root to ensure it works on Render
+  const frontendPath = path.join(process.cwd(), 'artifacts/misfit/dist');
+  console.log(`📁 Serving frontend from: ${frontendPath}`);
+  
+  app.use(express.static(frontendPath, {
+    maxAge: '1d',
+    etag: false,
+  }));
 
   // SPA fallback: serve index.html for all non-API routes
   app.use((req: Request, res: Response) => {
     if (!req.path.startsWith('/api')) {
-      res.sendFile(path.join(frontendPath, 'index.html'));
+      const indexPath = path.join(frontendPath, 'index.html');
+      console.log(`📄 Serving index.html from: ${indexPath}`);
+      res.sendFile(indexPath);
     } else {
       res.status(404).json({ error: 'Not Found' });
     }
