@@ -5,6 +5,7 @@
   "description": "Misfit Ministries — Nura Platform (Express 5 + MySQL)",
   "type": "module",
   "scripts": {
+    "start":"node server.js","build":"vite build"
     "dev": "pnpm --filter @workspace/api-server dev & pnpm --filter @workspace/misfit dev",
     "build": "pnpm --filter @workspace/db build && pnpm --filter @workspace/api-server build && pnpm --filter @workspace/misfit build",
     "test": "pnpm --filter @workspace/api-server test && pnpm --filter @workspace/misfit test",
