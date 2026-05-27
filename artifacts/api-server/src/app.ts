@@ -2,7 +2,12 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import pinoHttp from 'pino-http';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { prayerLimiter, nuraLimiter, forgeAuthLimiter } from './middleware/rate-limiter.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export function createApp(): Express {
   const app = express();
@@ -51,6 +56,17 @@ export function createApp(): Express {
   app.use('/api/prayers', prayerLimiter);
   app.use('/api/nura/chat', nuraLimiter);
   app.use('/api/forge/auth', forgeAuthLimiter);
+
+  // Serve static files from frontend dist
+  const frontendPath = path.join(__dirname, '../../misfit/dist');
+  app.use(express.static(frontendPath));
+
+  // SPA fallback: serve index.html for all non-API routes
+  app.get('*', (req: Request, res: Response) => {
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(path.join(frontendPath, 'index.html'));
+    }
+  });
 
   return app;
 }
