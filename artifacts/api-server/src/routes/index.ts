@@ -1,17 +1,17 @@
 import { Router } from 'express';
 import type { Router as ExpressRouter } from 'express';
-import prayersRouter from './prayers';
-import testimoniesRouter from './testimonies';
-import resourcesRouter from './resources';
-import contentRouter from './content';
-import nuraRouter from './nura';
-import forgeRouter from './forge';
-import stripeRouter from './stripe';
-import videoTestimonialsRouter from './video-testimonials';
-import printifyRouter from './printify';
-import autopilotRouter from './autopilot';
-import contentCreatorRouter from './content-creator';
-import authRouter from './auth';
+import prayersRouter from './prayers.js';
+import testimoniesRouter from './testimonies.js';
+import resourcesRouter from './resources.js';
+import contentRouter from './content.js';
+import nuraRouter from './nura.js';
+import forgeRouter from './forge.js';
+import stripeRouter from './stripe.js';
+import videoTestimonialsRouter from './video-testimonials.js';
+import printifyRouter from './printify.js';
+import autopilotRouter from './autopilot.js';
+import contentCreatorRouter from './content-creator.js';
+import authRouter from './auth.js';
 
 const router: ExpressRouter = Router();
 

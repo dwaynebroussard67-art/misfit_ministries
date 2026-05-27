@@ -13,4 +13,4 @@ const poolConnection = mysql.createPool({
 
 export const db = drizzle(poolConnection);
 
-export * from './schema/orders';
+export * from './schema/orders.js';
