@@ -5,6 +5,10 @@ services:
     plan: standard
     buildCommand: pnpm install && pnpm --filter @workspace/db build && pnpm --filter @workspace/api-server build && pnpm --filter @workspace/misfit build
     startCommand: node /opt/render/project/artifacts/api-server/dist/index.js
+    routes:
+      - type: rewrite
+        source: /(?!api).*
+        destination: /index.html
     envVars:
       - key: NODE_ENV
         value: production
