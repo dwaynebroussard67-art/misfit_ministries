@@ -19,7 +19,6 @@
     "typescript": "^5.9.0",
     "vitest": "^1.6.1"
   },
-
   "dependencies": {
     "@ai-sdk/groq": "^3.0.39",
     "@types/bcryptjs": "^3.0.0",
