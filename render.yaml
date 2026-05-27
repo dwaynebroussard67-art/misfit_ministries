@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: misfit-ministries-api
+    env: node
+    plan: starter
+    buildCommand: pnpm install && pnpm build
+    startCommand: pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "5000"
+      - key: DATABASE_URL
+        scope: build
+      - key: GROQ_API_KEY
+        scope: build
+      - key: STRIPE_SECRET_KEY
+        scope: build
+      - key: STRIPE_PUBLISHABLE_KEY
+        scope: build
+      - key: STRIPE_WEBHOOK_SECRET
+        scope: build
+      - key: PRINTIFY_JWT_TOKEN
+        scope: build
+      - key: FORGE_PASSPHRASE
+        scope: build
+      - key: JWT_SECRET
+        scope: build
