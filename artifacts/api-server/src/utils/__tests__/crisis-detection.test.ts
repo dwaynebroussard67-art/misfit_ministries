@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectCrisisKeywords } from '../crisis-detection';
+import { detectCrisisKeywords } from '../crisis-detection.js';
 
 describe('Crisis Detection', () => {
   it('should detect suicide keywords', () => {

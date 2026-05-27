@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
-import { db } from '../db';
-import type { orders as OrdersTable } from '../db/schema/orders';
+import { db } from '../db/index.js';
+import type { orders as OrdersTable } from '../db/schema/orders.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2023-10-16',

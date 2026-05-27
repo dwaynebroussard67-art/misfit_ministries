@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
 import type { Router as ExpressRouter } from 'express';
-import { createCheckoutSession, verifyWebhookSignature, handleCheckoutSessionCompleted, handlePaymentIntentSucceeded, handlePaymentIntentFailed, getUserOrders } from '../services/stripe-service';
-import { PRODUCTS, MERCHANDISE } from '../config/products';
-import { requireForge } from '../middleware/forge-auth';
+import { createCheckoutSession, verifyWebhookSignature, handleCheckoutSessionCompleted, handlePaymentIntentSucceeded, handlePaymentIntentFailed, getUserOrders } from '../services/stripe-service.js';
+import { PRODUCTS, MERCHANDISE } from '../config/products.js';
+import { requireForge } from '../middleware/forge-auth.js';
 
 const router: ExpressRouter = Router();
 

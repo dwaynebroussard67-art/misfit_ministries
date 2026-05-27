@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectCrisisKeywords, shouldRefer988 } from '../crisis-detection';
+import { detectCrisisKeywords, shouldRefer988 } from '../crisis-detection.js';
 
 describe('Full Integration Tests', () => {
   describe('Crisis Detection', () => {
