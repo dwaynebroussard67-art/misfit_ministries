@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Phone } from 'lucide-react';
 
 export default function Navbar() {
   return (
@@ -25,7 +24,7 @@ export default function Navbar() {
               href="tel:988"
               className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition font-semibold"
             >
-              <Phone size={18} />
+              <span className="text-lg">☎️</span>
               <span className="hidden sm:inline">988 Crisis</span>
             </a>
           </div>
