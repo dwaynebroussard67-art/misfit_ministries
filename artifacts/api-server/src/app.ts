@@ -62,9 +62,11 @@ export function createApp(): Express {
   app.use(express.static(frontendPath));
 
   // SPA fallback: serve index.html for all non-API routes
-  app.get('*', (req: Request, res: Response) => {
+  app.use((req: Request, res: Response) => {
     if (!req.path.startsWith('/api')) {
       res.sendFile(path.join(frontendPath, 'index.html'));
+    } else {
+      res.status(404).json({ error: 'Not Found' });
     }
   });
 
