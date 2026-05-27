@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { getDb, prayers } from '@workspace/db';
-import { eq, desc, isNull } from 'drizzle-orm';
+import { eq, desc, isNull, count } from 'drizzle-orm';
 import { z } from 'zod';
 import { detectCrisisKeywords, comprehensiveCrisisDetection } from '../utils/crisis-detection.js';
 import { requireForge } from '../middleware/forge-auth.js';
@@ -55,8 +55,16 @@ router.get('/', async (req: Request, res: Response) => {
     const offset = (page - 1) * limit;
 
     const result = await query.orderBy(desc(prayers.created_at)).limit(limit).offset(offset);
-    const countResult = await db.select().from(prayers).where(isNull(prayers.deletedAt));
-    const total = countResult.length;
+    
+    // Use SQL COUNT instead of loading all rows
+    let countQuery: any = db.select({ total: count() }).from(prayers).where(isNull(prayers.deletedAt));
+    if (category && PRAYER_CATEGORIES.includes(category)) {
+      countQuery = countQuery.where(eq(prayers.category, category));
+    }
+    if (status && ['pending', 'answered', 'archived'].includes(status)) {
+      countQuery = countQuery.where(eq(prayers.status, status));
+    }
+    const [{ total }] = await countQuery;
 
     res.json({
       data: result,
@@ -88,10 +96,8 @@ router.post('/', async (req: Request, res: Response) => {
       return;
     }
     
-    // Use comprehensive crisis detection (keywords + LLM semantic analysis)
-    const crisisAnalysis = await comprehensiveCrisisDetection(parsed.request);
-    const crisis_flag = crisisAnalysis.crisis_flag;
-    const keywords = crisisAnalysis.keywords;
+    // FAST: Use keyword detection only (instant, no API calls)
+    const { crisis_flag: keyword_crisis, keywords: keyword_list } = detectCrisisKeywords(parsed.request);
 
     const db = await getDb();
     const result = await db.insert(prayers).values({
@@ -99,26 +105,47 @@ router.post('/', async (req: Request, res: Response) => {
       request: sanitizeInput(parsed.request),
       category: parsed.category || 'other',
       is_anonymous: parsed.is_anonymous,
-      crisis_flag: crisis_flag,
-      flagged_keywords: crisis_flag ? keywords.join(', ') : null,
+      crisis_flag: keyword_crisis,
+      flagged_keywords: keyword_crisis ? keyword_list.join(', ') : null,
     });
 
-    if (crisis_flag) {
-      const adminEmail = process.env.ADMIN_EMAIL || 'admin@misfitministries.com';
-      const prayerName = parsed.name || 'Anonymous';
-      try {
-        await sendCrisisAlert(adminEmail, prayerName, keywords);
-      } catch (emailError) {
-        console.error('Failed to send crisis alert email:', emailError);
-      }
-    }
+    const prayerId = (result as any)[0]?.insertId || (result as any).insertId;
 
+    // RESPOND IMMEDIATELY to user (don't wait for AI)
     res.status(201).json({
       success: true,
-      crisis_flag: crisis_flag,
-      confidence_score: crisisAnalysis.confidence_score,
-      should_refer_988: crisisAnalysis.should_refer_988,
-      message: crisisAnalysis.should_refer_988 ? 'Prayer submitted. Crisis detected. 988 resources available.' : 'Prayer submitted.',
+      crisis_flag: keyword_crisis,
+      message: keyword_crisis ? 'Prayer submitted. Crisis resources available.' : 'Prayer submitted.',
+    });
+
+    // ASYNC: Run comprehensive crisis detection in background (don't block)
+    setImmediate(async () => {
+      try {
+        const crisisAnalysis = await comprehensiveCrisisDetection(parsed.request);
+        
+        // If AI detected crisis but keywords didn't, update the prayer
+        if (crisisAnalysis.crisis_flag && !keyword_crisis) {
+          await db.update(prayers)
+            .set({
+              crisis_flag: true,
+              flagged_keywords: crisisAnalysis.keywords.join(', '),
+            })
+            .where(eq(prayers.id, prayerId));
+        }
+        
+        // Send alert if crisis detected
+        if (crisisAnalysis.crisis_flag) {
+          const adminEmail = process.env.ADMIN_EMAIL || 'admin@misfitministries.com';
+          const prayerName = parsed.name || 'Anonymous';
+          try {
+            await sendCrisisAlert(adminEmail, prayerName, crisisAnalysis.keywords);
+          } catch (emailError) {
+            console.error('Failed to send crisis alert email:', emailError);
+          }
+        }
+      } catch (err) {
+        console.error('Background crisis detection failed:', err);
+      }
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

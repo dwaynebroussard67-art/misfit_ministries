@@ -1,0 +1,22 @@
+[Unit]
+Description=Misfit Ministries API Server
+After=network.target mysql.service
+Wants=mysql.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/misfit-ministries
+Environment="NODE_ENV=production"
+Environment="PORT=5000"
+ExecStart=/usr/local/bin/pm2 start ecosystem.config.js --no-daemon
+ExecReload=/usr/local/bin/pm2 reload ecosystem.config.js
+ExecStop=/usr/local/bin/pm2 stop ecosystem.config.js
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=misfit-api
+
+[Install]
+WantedBy=multi-user.target
