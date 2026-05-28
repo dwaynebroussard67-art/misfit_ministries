@@ -1,5 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/queryClient';
 import Layout from './components/Layout';
@@ -35,31 +36,33 @@ function LoadingFallback() {
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <Layout>
-          <Suspense fallback={<LoadingFallback />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/prayer" element={<Prayer />} />
-              <Route path="/testimonies" element={<Testimonies />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/constitution" element={<Constitution />} />
-              <Route path="/shine" element={<Shine />} />
-              <Route path="/wreckage" element={<Wreckage />} />
-              <Route path="/armory" element={<Armory />} />
-              <Route path="/store" element={<Store />} />
-              <Route path="/teachings" element={<Teachings />} />
-              <Route path="/nura" element={<Nura />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/dashboard" element={<UserDashboard />} />
-              <Route path="/forge" element={<AdminDashboard />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </Layout>
-      </Router>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <Layout>
+            <Suspense fallback={<LoadingFallback />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/prayer" element={<Prayer />} />
+                <Route path="/testimonies" element={<Testimonies />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/constitution" element={<Constitution />} />
+                <Route path="/shine" element={<Shine />} />
+                <Route path="/wreckage" element={<Wreckage />} />
+                <Route path="/armory" element={<Armory />} />
+                <Route path="/store" element={<Store />} />
+                <Route path="/teachings" element={<Teachings />} />
+                <Route path="/nura" element={<Nura />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/dashboard" element={<UserDashboard />} />
+                <Route path="/forge" element={<AdminDashboard />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </Layout>
+        </Router>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 }
