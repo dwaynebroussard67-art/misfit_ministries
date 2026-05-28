@@ -13,6 +13,7 @@ export default defineConfig({
     include: ['lucide-react'],
   },
   build: {
+    sourcemap: true,
     commonjsOptions: {
       include: [/lucide-react/, /node_modules/],
     },
