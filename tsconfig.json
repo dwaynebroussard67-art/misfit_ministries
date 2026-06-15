@@ -5,29 +5,17 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": true,
-    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "moduleResolution": "bundler",
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "@workspace/db": ["lib/db/src/index.ts"],
-      "@workspace/api-spec": ["lib/api-spec/src/index.ts"],
-      "@workspace/api-client-react": ["lib/api-client-react/src/index.ts"]
-    }
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true
   },
-  "include": ["artifacts", "lib", "scripts"],
-  "references": [
-    { "path": "./artifacts/api-server/tsconfig.json" },
-    { "path": "./artifacts/misfit/tsconfig.json" },
-    { "path": "./lib/db/tsconfig.json" }
-  ]
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

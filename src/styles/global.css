@@ -1,0 +1,179 @@
+:root {
+  --void: #0a0a0a;
+  --charcoal: #111111;
+  --ash: #1a1a1a;
+  --smoke: #242424;
+  --bone: #e8e4dc;
+  --dim: #9a9690;
+  --ghost: #444440;
+  --blood: #8B0000;
+  --ember: #cc2200;
+  --gold: #b8960c;
+  --font-body: 'EB Garamond', 'Georgia', serif;
+  --font-ui: 'Space Grotesk', sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--void);
+  color: var(--bone);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+[data-forge-id] {
+  position: relative;
+  cursor: text;
+  transition: outline 0.15s ease;
+}
+[data-forge-id]:hover {
+  outline: 1px dashed var(--blood);
+  outline-offset: 4px;
+}
+[data-forge-id].forge-editing {
+  outline: 2px solid var(--ember);
+  outline-offset: 4px;
+}
+
+.btn-primary {
+  display: inline-block;
+  background: var(--blood);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 16px 48px;
+  border: 2px solid var(--blood);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-primary:hover {
+  background: transparent;
+  color: var(--blood);
+}
+
+.btn-ghost {
+  display: inline-block;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 12px 32px;
+  border: 1px solid var(--blood);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-ghost:hover {
+  background: var(--blood);
+  color: #fff;
+}
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 48px;
+  background: linear-gradient(to bottom, rgba(10,10,10,0.95) 0%, transparent 100%);
+  transition: background 0.3s;
+}
+.nav.scrolled {
+  background: rgba(10,10,10,0.98);
+  border-bottom: 1px solid var(--ghost);
+}
+.nav-logo {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+  transition: color 0.2s;
+}
+.nav-links a:hover {
+  color: #fff;
+}
+
+.blood-line {
+  width: 60px;
+  height: 2px;
+  background: var(--blood);
+  margin: 24px auto;
+}
+
+.forge-badge {
+  position: fixed;
+  bottom: 64px;
+  right: 24px;
+  z-index: 200;
+  background: var(--blood);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+.forge-badge:hover {
+  background: var(--ember);
+}
+
+@media (max-width: 768px) {
+  .nav {
+    padding: 16px 24px;
+  }
+}
