@@ -87,6 +87,8 @@ export default function ForgeText({
   return (
     // @ts-ignore
     <Tag
+// @ts-ignore
+// @ts-ignore
       ref={ref}
       data-forge-id={id}
       className={`${className ?? ''} ${forgeActive ? 'forge-editable' : ''}`}
