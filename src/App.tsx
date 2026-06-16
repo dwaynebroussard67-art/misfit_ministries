@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './lib/AuthContext';
 import { ForgeProvider } from './lib/ForgeContext';
+import { CMSProvider } from './lib/CMSContext';
 import { Login } from './components/Login';
 import Nav from './components/Nav';
 import ForgePanel from './components/ForgePanel';
@@ -20,6 +21,7 @@ import Community from './pages/Community';
 export default function App() {
   return (
     <AuthProvider>
+      <CMSProvider>
       <ForgeProvider>
         <BrowserRouter>
           <Nav />
@@ -41,6 +43,7 @@ export default function App() {
           <PersistentBar />
         </BrowserRouter>
       </ForgeProvider>
+      </CMSProvider>
     </AuthProvider>
   );
 }
