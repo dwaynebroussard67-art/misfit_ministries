@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider, useAuth } from './lib/AuthContext';
 import { ForgeProvider } from './lib/ForgeContext';
+import { Login } from './components/Login';
 import Nav from './components/Nav';
 import ForgePanel from './components/ForgePanel';
 import PersistentBar from './components/PersistentBar';
@@ -15,7 +17,15 @@ import ThatsWhatLoveDoes from './pages/ThatsWhatLoveDoes';
 import FirstResponders from './pages/FirstResponders';
 import Community from './pages/Community';
 
-export default function App() {
+function AppContent() {
+  const { user } = useAuth();
+
+  // If not logged in, show login
+  if (!user) {
+    return <Login />;
+  }
+
+  // If logged in, show the full app with Forge Mode
   return (
     <ForgeProvider>
       <BrowserRouter>
@@ -37,5 +47,13 @@ export default function App() {
         <PersistentBar />
       </BrowserRouter>
     </ForgeProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
