@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider, useAuth } from './lib/AuthContext';
+import { AuthProvider } from './lib/AuthContext';
 import { ForgeProvider } from './lib/ForgeContext';
 import { Login } from './components/Login';
 import Nav from './components/Nav';
@@ -17,43 +17,30 @@ import ThatsWhatLoveDoes from './pages/ThatsWhatLoveDoes';
 import FirstResponders from './pages/FirstResponders';
 import Community from './pages/Community';
 
-function AppContent() {
-  const { user } = useAuth();
-
-  // If not logged in, show login
-  if (!user) {
-    return <Login />;
-  }
-
-  // If logged in, show the full app with Forge Mode
-  return (
-    <ForgeProvider>
-      <BrowserRouter>
-        <Nav />
-        <ForgePanel />
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/war-room" element={<WarRoom />} />
-          <Route path="/armory" element={<Armory />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/welcome/:type" element={<Welcome />} />
-          <Route path="/notes-from-the-king" element={<NotesFromTheKing />} />
-          <Route path="/thats-what-love-does" element={<ThatsWhatLoveDoes />} />
-          <Route path="/first-responders" element={<FirstResponders />} />
-          <Route path="/community" element={<Community />} />
-        </Routes>
-        <PersistentBar />
-      </BrowserRouter>
-    </ForgeProvider>
-  );
-}
-
 export default function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <ForgeProvider>
+        <BrowserRouter>
+          <Nav />
+          <ForgePanel />
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/war-room" element={<WarRoom />} />
+            <Route path="/armory" element={<Armory />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/welcome/:type" element={<Welcome />} />
+            <Route path="/notes-from-the-king" element={<NotesFromTheKing />} />
+            <Route path="/thats-what-love-does" element={<ThatsWhatLoveDoes />} />
+            <Route path="/first-responders" element={<FirstResponders />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/forge-login" element={<Login />} />
+          </Routes>
+          <PersistentBar />
+        </BrowserRouter>
+      </ForgeProvider>
     </AuthProvider>
   );
 }
