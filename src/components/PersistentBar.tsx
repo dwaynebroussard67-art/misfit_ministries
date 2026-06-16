@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import NuraChat from './NuraChat';
+// import NuraChat from './NuraChat';
 
 export default function PersistentBar() {
   const [nuraOpen, setNuraOpen] = useState(false);
