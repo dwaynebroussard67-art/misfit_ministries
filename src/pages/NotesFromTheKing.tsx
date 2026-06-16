@@ -102,7 +102,7 @@ interface Note {
 }
 
 export default function NotesFromTheKing() {
-  const { forgeActive } = useForge();
+  const forgeActive = false;
   const [openNote, setOpenNote] = useState<string | null>(null);
   const [notes, setNotes] = useState<Note[]>(() => {
     try {
