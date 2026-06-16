@@ -78,7 +78,7 @@ export default function PersistentBar() {
           margin: '0 auto',
           boxShadow: '0 -4px 40px rgba(0,0,0,0.8)',
         }}>
-          <NuraChat />
+          {/* <NuraChat /> */}
         </div>
       )}
 
